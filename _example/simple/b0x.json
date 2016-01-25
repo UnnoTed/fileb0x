@@ -75,7 +75,7 @@
       // if you have difficulty to understand what base and prefix is
       // think about it like this: [prefix] will replace [base]
 
-      // accetps go's glob
+      // accetps glob
       // type: array of strings
       "exclude": [
         "public/assets/data/exclude_me.txt"
@@ -85,10 +85,9 @@
       // type: array of objects
       "replace": [
         {
-          // accepts go's glob
-          // ../public/assets/data/*.config.json
+          // accepts glob
           // type: string
-          "file": "data/*.json",
+          "file": "public/assets/data/*.json",
 
           // case sensitive
           // type: object with strings
