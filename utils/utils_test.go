@@ -7,7 +7,7 @@ import (
 )
 
 func TestFixPath(t *testing.T) {
-	p := `C:\test\a\b\\c\d\e\f`
+	p := `C:\test\a\b\c\d\e\f`
 	fixedPath := FixPath(p)
 
 	assert.Equal(t, `C:/test/a/b/c/d/e/f`, fixedPath)
