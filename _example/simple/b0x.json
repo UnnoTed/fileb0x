@@ -22,7 +22,7 @@
   "clean": true,
 
   // default: b0x.go
-  "output": "myb0x.go",
+  "output": "b0x.go",
 
   // [unexporTed] builds non-exporTed functions, variables and types...
   // type: bool

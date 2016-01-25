@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/UnnoTed/fileb0x/custom"
 )
@@ -38,6 +39,17 @@ func (cfg *Config) Defaults() error {
 		cfg.Output = "b0x.go"
 	}
 
+	// inserts .go at the end of file name
+	if !strings.HasSuffix(cfg.Output, ".go") {
+		cfg.Output += ".go"
+	}
+
+	// inserts an A before the output file's name so it can
+	// run init() before b0xfile's
+	if !strings.HasPrefix(cfg.Output, "a") {
+		cfg.Output = "a" + cfg.Output
+	}
+
 	// default package
 	if cfg.Pkg == "" {
 		cfg.Pkg = "main"
@@ -51,6 +63,7 @@ func (cfg *Config) Defaults() error {
 			return err
 		}
 
+		// remove matched file
 		for _, f := range matches {
 			err = os.Remove(f)
 			if err != nil {

@@ -1,10 +1,10 @@
-go install
+golint ./...
 
 @echo off
 cd .\_example\simple\
 @echo on
 
-call b0x.bat
+call golint ./...
 
 @echo off
 cd ..\..\
