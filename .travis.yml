@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - 1.6beta2
+  - 1.5.3
 
 env:
   - GIMME_OS=linux GIMME_ARCH=386
