@@ -1,0 +1,1 @@
+go test ./... -v b0x.json
