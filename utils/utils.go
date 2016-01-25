@@ -16,7 +16,7 @@ func FixPath(path string) string {
 // FixName converts [/ to _](1), [  to -](2) and [, to __](3)
 func FixName(path string) string {
 	a := FixPath(path)
-	b := strings.Replace(a, "/", "_", -1)     // / to _
-	c := strings.Replace(b, " ", "-", -1)     // {space} to -
-	return strings.Replace(c, ",", "___", -1) // , to __
+	b := strings.Replace(a, "/", "_", -1)    // / to _
+	c := strings.Replace(b, " ", "-", -1)    // {space} to -
+	return strings.Replace(c, ",", "__", -1) // , to __
 }

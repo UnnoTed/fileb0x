@@ -7,5 +7,5 @@ var (
 	regexComments = regexp.MustCompile(`\/\/([\w\s\'].*)`)
 
 	// used to remove special chars from paths
-	safeVarName = regexp.MustCompile(`[^a-zA-Z0-9]`)
+	SafeVarName = regexp.MustCompile(`[^a-zA-Z0-9]`)
 )

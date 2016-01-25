@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/UnnoTed/fileb0x/config"
 )
 
 var r = regexp.MustCompile(`[^a-zA-Z0-9]`)
@@ -16,6 +18,7 @@ var funcsTemplate = template.FuncMap{
 
 var unexported bool
 
+// SetUnexported variables, functions and types
 func SetUnexported(e bool) {
 	unexported = e
 }
@@ -37,5 +40,5 @@ func exportedTitle(field string) string {
 }
 
 func buildSafeVarName(path string) string {
-	return r.ReplaceAllString(path, "")
+	return config.SafeVarName.ReplaceAllString(path, "")
 }

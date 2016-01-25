@@ -32,6 +32,10 @@ func (d *Dir) Parse(newDir string) []string {
 		}
 
 		if !d.Exists(dirList) {
+			if strings.HasSuffix(dirList, "//") {
+				dirList = dirList[:len(dirList)-1]
+			}
+
 			dirWalk = append(dirWalk, dirList)
 			d.Blacklist = append(d.Blacklist, dirList)
 		}
