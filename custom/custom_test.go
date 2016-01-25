@@ -3,6 +3,7 @@ package custom
 import (
 	"encoding/hex"
 	"log"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -41,16 +42,24 @@ func TestCustomParse(t *testing.T) {
 	assert.NotNil(t, files)
 	assert.NotNil(t, dirs)
 
+	// insert \r on windows
+	var isWindows string
+	if runtime.GOOS == "windows" {
+		isWindows = "\r"
+	}
+
 	for _, f := range files {
 		assert.True(t, strings.HasPrefix(f.Path, c.Prefix))
 		assert.NotEqual(t, "exclude_me.txt", f.Name)
 
 		if f.Name == "test1.json" {
-			e := "{\r\n  \"he\": \"llo\",\r\n  \"replace_test\": \"earth\"\r\n}"
+			e := "{" + isWindows + "\n  \"he\": \"llo\"," + isWindows +
+				"\n  \"replace_test\": \"earth\"" + isWindows + "\n}"
+
 			assert.Equal(t, e, data2str(f.Data))
 
 		} else if f.Name == "test2.json" {
-			e := "{\r\n  \"email\": \"aliens@nasa.com\"\r\n}"
+			e := "{" + isWindows + "\n  \"email\": \"aliens@nasa.com\"" + isWindows + "\n}"
 			assert.Equal(t, e, data2str(f.Data))
 		}
 	}
