@@ -1,4 +1,4 @@
-fileb0x [![Build Status](https://travis-ci.org/UnnoTed/fileb0x.svg?branch=master)](https://travis-ci.org/UnnoTed/fileb0x)
+fileb0x [![Circle CI](https://circleci.com/gh/UnnoTed/fileb0x.svg?style=svg)](https://circleci.com/gh/UnnoTed/fileb0x)
 =======
 a simple customizable tool to embed files in go
 
