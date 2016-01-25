@@ -12,7 +12,8 @@ func TestConfigDefaults(t *testing.T) {
 	assert.Equal(t, "", cfg.Output)
 	assert.Equal(t, "", cfg.Pkg)
 
-	cfg.Defaults()
+	err := cfg.Defaults()
+	assert.NoError(t, err)
 
 	assert.Equal(t, "/", cfg.Dest)
 	assert.Equal(t, "b0x.go", cfg.Output)

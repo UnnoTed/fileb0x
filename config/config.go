@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/UnnoTed/fileb0x/custom"
 )
@@ -21,7 +22,7 @@ type Config struct {
 }
 
 // Defaults set the default value for some variables
-func (cfg *Config) Defaults() {
+func (cfg *Config) Defaults() error {
 	// default destination
 	if cfg.Dest == "" {
 		cfg.Dest = "/"
@@ -42,8 +43,21 @@ func (cfg *Config) Defaults() {
 		cfg.Pkg = "main"
 	}
 
-	// remove dest dir when clean is true
+	// remove b0xfiles when [clean] is true
+	// it doesn't clean destination's folders
 	if cfg.Clean {
-		os.RemoveAll(cfg.Dest)
+		matches, err := filepath.Glob(cfg.Dest + "b0xfile_*.go")
+		if err != nil {
+			return err
+		}
+
+		for _, f := range matches {
+			err = os.Remove(f)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
+	return nil
 }

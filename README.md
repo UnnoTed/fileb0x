@@ -56,7 +56,7 @@ json config file example (b0x.json):
   // -- DANGEROUS --
   // ---------------
   // 
-  // cleans the destination folder
+  // cleans the destination folder (only b0xfiles)
   // you should use this when using the spread function
   // type: bool
   // default: false

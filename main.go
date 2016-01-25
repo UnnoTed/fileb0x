@@ -95,7 +95,7 @@ func main() {
 			}
 
 			// transform / to _ and some other chars...
-			customName := utils.FixName(f.Path) + ".go"
+			customName := "b0xfile_" + utils.FixName(f.Path) + ".go"
 
 			// creates file template and exec it
 			t := new(template.Template)
