@@ -1,4 +1,4 @@
-fileb0x [ ![Codeship Status for UnnoTed/fileb0x](https://codeship.com/projects/43634630-a54b-0133-1443-7ac2b0a34bb8/status?branch=master)](https://codeship.com/projects/129551)
+fileb0x [![Build Status](https://travis-ci.org/UnnoTed/fileb0x.svg?branch=master)](https://travis-ci.org/UnnoTed/fileb0x)
 =======
 a simple customizable tool to embed files in go
 
