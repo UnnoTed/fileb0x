@@ -15,14 +15,14 @@
   // -- DANGEROUS --
   // ---------------
   // 
-  // cleans the destination folder
+  // cleans the destination folder (only b0xfiles)
   // you should use this when using the spread function
   // type: bool
   // default: false
   "clean": true,
 
-  // default: b0x.go
-  "output": "b0x.go",
+  // default: ab0x.go
+  "output": "ab0x.go",
 
   // [unexporTed] builds non-exporTed functions, variables and types...
   // type: bool

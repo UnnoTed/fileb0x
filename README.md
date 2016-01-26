@@ -18,7 +18,7 @@ features:
 
 - [x] optional: custom base and prefix path
 
-- [x] Local FileSystem - [webdav](https://godoc.org/golang.org/x/net/webdav)
+- [x] Virtual Memory FileSystem - [webdav](https://godoc.org/golang.org/x/net/webdav)
 
 - [x] HTTP FileSystem and Handler
 
@@ -62,8 +62,8 @@ json config file example (b0x.json):
   // default: false
   "clean": false,
 
-  // default: b0x.go
-  "output": "myb0x.go",
+  // default: ab0x.go
+  "output": "ab0x.go",
 
   // [unexporTed] builds non-exporTed functions, variables and types...
   // type: bool
@@ -116,7 +116,7 @@ json config file example (b0x.json):
       // if you have difficulty to understand what base and prefix is
       // think about it like this: [prefix] will replace [base]
 
-      // accetps go's glob
+      // accetps glob
       // type: array of strings
       "exclude": [
         "public/assets/data/exclude_me.txt"
@@ -126,10 +126,9 @@ json config file example (b0x.json):
       // type: array of objects
       "replace": [
         {
-          // accepts go's glob
-          // ../public/assets/data/*.config.json
+          // accepts glob
           // type: string
-          "file": "data/*.json",
+          "file": "public/assets/data/*.json",
 
           // case sensitive
           // type: object with strings
