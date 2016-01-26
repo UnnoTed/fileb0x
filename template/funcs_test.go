@@ -27,7 +27,19 @@ func TestExportedTitle(t *testing.T) {
 }
 
 func TestVarName(t *testing.T) {
-	ns := `s@af{{e}} Var!@)*iable& Na!*(@$!@)me`
-	s := buildSafeVarName(ns)
-	assert.Equal(t, `safeVariableName`, s)
+	var s string
+	s = buildSafeVarName(`a/safe/variable.name`)
+	assert.Equal(t, `ASafeVariableName`, s)
+
+	s = buildSafeVarName(`a/safe/variable.html`)
+	assert.Equal(t, `ASafeVariableHTML`, s)
+
+	s = buildSafeVarName(`a/safe/variable.json`)
+	assert.Equal(t, `ASafeVariableJSON`, s)
+
+	s = buildSafeVarName(`a/safe/variable.url`)
+	assert.Equal(t, `ASafeVariableURL`, s)
+
+	s = buildSafeVarName(`a/sql/variable.name`)
+	assert.Equal(t, `ASQLVariableName`, s)
 }

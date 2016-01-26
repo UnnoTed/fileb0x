@@ -40,7 +40,7 @@ func TestTemplate(t *testing.T) {
 
 	s := string(tmpl)
 
-	assert.True(t, strings.Contains(s, `var Filestatictestfiletxt = []byte("\x12\x34\x56\x78\x10")`))
+	assert.True(t, strings.Contains(s, `var FileStaticTestFileTxt = []byte("\x12\x34\x56\x78\x10")`))
 	assert.True(t, strings.Contains(s, `err = FS.Mkdir("static/", 0777)`))
 	assert.True(t, strings.Contains(s, `f, err = FS.OpenFile("static/test_file.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)`))
 
@@ -66,6 +66,6 @@ func TestTemplate(t *testing.T) {
 
 	s = string(tmpl)
 
-	assert.True(t, strings.Contains(s, `var Filestatictestfiletxt = []byte("\x12\x34\x56\x78\x10")`))
+	assert.True(t, strings.Contains(s, `var FileStaticTestFileTxt = []byte("\x12\x34\x56\x78\x10")`))
 	assert.True(t, strings.Contains(s, `f, err := FS.OpenFile("static/test_file.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)`))
 }
