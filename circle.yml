@@ -1,10 +1,20 @@
 test:
   pre:
     - go get github.com/axw/gocov/gocov
+    - go get github.com/modocache/gover
     - go get github.com/mattn/goveralls
     - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
   override:
     - go test -v -cover -race -coverprofile=/home/ubuntu/coverage.out
+    - go test -coverprofile=template.coverprofile ./template
+    - go test -coverprofile=custom.coverprofile ./custom
+    - go test -coverprofile=config.coverprofile ./config
+    - go test -coverprofile=utils.coverprofile ./utils
+    - go test -coverprofile=file.coverprofile ./file
+    - go test -coverprofile=api.coverprofile ./api
+    - go test -coverprofile=dir.coverprofile ./dir
+    - go test -coverprofile=main.coverprofile
     - go test ./... -v b0x.json
   post:
-    - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=/home/ubuntu/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+    - /home/ubuntu/.go_workspace/bin/gover
+    - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=gover.coverprofile -service=circle-ci -repotoken $COVERALLS_TOKEN
