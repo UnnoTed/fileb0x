@@ -5,13 +5,11 @@ test:
     - go get github.com/mattn/goveralls
     - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
   override:
-    - go test -v -cover -race -coverprofile=/home/ubuntu/coverage.out
     - go test -coverprofile=template.coverprofile ./template
     - go test -coverprofile=custom.coverprofile ./custom
-    - go test -coverprofile=config.coverprofile ./config
+    - go test ./config -coverprofile=config.coverprofile b0x.json
     - go test -coverprofile=utils.coverprofile ./utils
     - go test -coverprofile=file.coverprofile ./file
-    - go test -coverprofile=api.coverprofile ./api
     - go test -coverprofile=dir.coverprofile ./dir
     - go test -coverprofile=main.coverprofile
     - go test ./... -v b0x.json

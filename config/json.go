@@ -20,6 +20,16 @@ func (j *JSON) FromArg() error {
 	// (last - 1)
 	arg := os.Args[len(os.Args)-1:][0]
 
+	// when json file isn't found on last arg
+	// it searches for a "b0x.json" string in all args
+	if !strings.HasSuffix(arg, ".json") {
+		for _, a := range os.Args {
+			if a == "b0x.json" {
+				arg = "b0x.json"
+			}
+		}
+	}
+
 	// checks if arg ends with json
 	if strings.HasSuffix(arg, ".json") {
 		abs := filepath.IsAbs(arg)
