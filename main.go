@@ -26,16 +26,16 @@ func main() {
 	var cfg *config.Config
 
 	// create config and try to get b0x file from args
-	j := new(config.JSON)
-	err = j.FromArg()
+	f := new(config.File)
+	err = f.FromArg()
 
 	// required info
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// load b0x file
-	cfg, err = j.Load()
+	// load b0x file's config
+	cfg, err = f.Load()
 	cfg.Defaults()
 
 	files := make(map[string]*file.File)
@@ -77,9 +77,11 @@ func main() {
 	}
 
 	// gofmt
-	tmpl, err = format.Source(tmpl)
-	if err != nil {
-		log.Fatal(err)
+	if cfg.Fmt {
+		tmpl, err = format.Source(tmpl)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// write final execuTed template into the destination file
@@ -88,7 +90,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// write spreaded files
+	// write spread files
 	if cfg.Spread {
 		a := strings.Split(path.Dir(cfg.Dest), "/")
 		dirName := a[len(a)-1:][0]
@@ -126,9 +128,11 @@ func main() {
 			}
 
 			// gofmt
-			tmpl, err = format.Source(tmpl)
-			if err != nil {
-				log.Fatal(err)
+			if cfg.Fmt {
+				tmpl, err = format.Source(tmpl)
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 
 			// write final execuTed template into the destination file

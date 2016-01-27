@@ -11,6 +11,11 @@
   // destination
   "dest": "./static/",
 
+  // gofmt
+  // type: bool
+  // default: false
+  "fmt": false,
+
   // ---------------
   // -- DANGEROUS --
   // ---------------
@@ -19,7 +24,7 @@
   // you should use this when using the spread function
   // type: bool
   // default: false
-  "clean": true,
+  "clean": false,
 
   // default: ab0x.go
   "output": "ab0x.go",
@@ -40,7 +45,7 @@
   //
   // type: bool
   // default: false
-  "spread": true,
+  "spread": false,
 
   // type: array of objects
   "custom": [

@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Dest string
 	Pkg  string
+	Fmt  bool // gofmt
 
 	Output string
 

@@ -7,12 +7,12 @@ test:
   override:
     - go test -coverprofile=template.coverprofile ./template
     - go test -coverprofile=custom.coverprofile ./custom
-    - go test ./config -coverprofile=config.coverprofile b0x.json
+    - go test -coverprofile=config.coverprofile ./config
     - go test -coverprofile=utils.coverprofile ./utils
     - go test -coverprofile=file.coverprofile ./file
     - go test -coverprofile=dir.coverprofile ./dir
     - go test -coverprofile=main.coverprofile
-    - go test ./... -v b0x.json
+    - go test ./... -v
   post:
     - /home/ubuntu/.go_workspace/bin/gover
     - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=gover.coverprofile -service=circle-ci -repotoken $COVERALLS_TOKEN
