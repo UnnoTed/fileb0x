@@ -88,5 +88,5 @@ func loadFromArgs(t *testing.T, ext string) {
 
 func cleanArgs() {
 	// remove "b0x.*" from last arg
-	os.Args = os.Args[:len(os.Args)]
+	os.Args = os.Args[:len(os.Args)-1]
 }
