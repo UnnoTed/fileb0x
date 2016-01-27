@@ -45,9 +45,6 @@ fileb0x b0x.yaml
 
 yaml config file example (b0x.yaml):
 ```yaml
-# in-line comments in json are supporTed by fileb0x!
-# a comment must have a space after the double slash
-#
 # all folders and files are relative to the path 
 # where fileb0x was run at!
 
