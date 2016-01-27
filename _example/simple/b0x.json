@@ -60,7 +60,7 @@
       "prefix": "public/"
     },
     {
-      // everything inside [src]
+      // everything inside the folder
       // type: array of strings
       "files": ["./public/"],
 
