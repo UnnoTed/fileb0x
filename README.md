@@ -81,7 +81,7 @@ json config file example (b0x.json):
   //
   // type: bool
   // default: false
-  "spread": true,
+  "spread": false,
 
   // type: array of objects
   "custom": [
@@ -101,7 +101,7 @@ json config file example (b0x.json):
       "prefix": "public/"
     },
     {
-      // everything inside [src]
+      // everything inside the folder
       // type: array of strings
       "files": ["./public/"],
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go/format"
 	"io/ioutil"
 	"log"
 	"os"
@@ -75,6 +76,12 @@ func main() {
 		}
 	}
 
+	// gofmt
+	tmpl, err = format.Source(tmpl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// write final execuTed template into the destination file
 	err = ioutil.WriteFile(cfg.Dest+cfg.Output, tmpl, 0777)
 	if err != nil {
@@ -114,6 +121,12 @@ func main() {
 				Data: f.Data,
 			}
 			tmpl, err := t.Exec()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// gofmt
+			tmpl, err = format.Source(tmpl)
 			if err != nil {
 				log.Fatal(err)
 			}
