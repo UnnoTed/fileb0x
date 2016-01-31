@@ -27,7 +27,9 @@ func (f *File) FromArg(read bool) error {
 
 	// get extension
 	ext := path.Ext(arg)
-	ext = ext[1:] // remove dot
+	if len(ext) > 1 {
+		ext = ext[1:] // remove dot
+	}
 
 	// when json/yaml file isn't found on last arg
 	// it searches for a ".json" or ".yaml" string in all args
