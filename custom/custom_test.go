@@ -37,7 +37,13 @@ func TestCustomParse(t *testing.T) {
 	files := make(map[string]*file.File)
 	dirs := new(dir.Dir)
 
+	oldFiles := c.Files
+	c.Files = []string{"../sa8vuj948127498/*"}
 	err := c.Parse(&files, &dirs)
+	assert.Error(t, err)
+
+	c.Files = oldFiles
+	err = c.Parse(&files, &dirs)
 	assert.NoError(t, err)
 	assert.NotNil(t, files)
 	assert.NotNil(t, dirs)

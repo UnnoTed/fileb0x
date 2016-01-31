@@ -8,6 +8,8 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/UnnoTed/fileb0x/utils"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -19,13 +21,15 @@ type File struct {
 }
 
 // FromArg gets the json/yaml file from args
-func (f *File) FromArg() error {
+func (f *File) FromArg(read bool) error {
 	// (length - 1)
 	arg := os.Args[len(os.Args)-1:][0]
 
 	// get extension
 	ext := path.Ext(arg)
-	ext = ext[1:] // remove dot
+	if len(ext) > 1 {
+		ext = ext[1:] // remove dot
+	}
 
 	// when json/yaml file isn't found on last arg
 	// it searches for a ".json" or ".yaml" string in all args
@@ -52,7 +56,7 @@ func (f *File) FromArg() error {
 	if ext == "json" || ext == "yaml" {
 		abs := filepath.IsAbs(arg)
 		if !abs {
-			dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+			dir, err := utils.GetCurrentDir()
 			if err != nil {
 				return err
 			}
@@ -61,6 +65,13 @@ func (f *File) FromArg() error {
 		}
 
 		f.FilePath = arg
+
+		// so we can test without reading a file
+		if read {
+			if !utils.Exists(f.FilePath) {
+				return errors.New("Error: I Can't find the config file at [" + f.FilePath + "]")
+			}
+		}
 	} else {
 		return errors.New("Error: You must specify a json or yaml file")
 	}
@@ -68,21 +79,15 @@ func (f *File) FromArg() error {
 	return nil
 }
 
-// Load the json/yaml file that was specified from args
-// and transform it into a config struct
-func (f *File) Load() (*Config, error) {
-	var err error
-	// read file
-	f.Data, err = ioutil.ReadFile(f.FilePath)
-	if err != nil {
-		return nil, err
-	}
-
+// Parse gets the config file's content from File.Data
+func (f *File) Parse() (*Config, error) {
 	// remove comments
 	f.RemoveJSONComments()
 
-	// parse file
 	var to *Config
+	var err error
+
+	// parse file
 	if f.Mode == "json" {
 		err = json.Unmarshal(f.Data, &to)
 	} else {
@@ -90,6 +95,24 @@ func (f *File) Load() (*Config, error) {
 	}
 
 	return to, err
+}
+
+// Load the json/yaml file that was specified from args
+// and transform it into a config struct
+func (f *File) Load() (*Config, error) {
+	var err error
+	if !utils.Exists(f.FilePath) {
+		return nil, errors.New("Error: I Can't find the config file at [" + f.FilePath + "]")
+	}
+
+	// read file
+	f.Data, err = ioutil.ReadFile(f.FilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse file
+	return f.Parse()
 }
 
 // RemoveJSONComments from the file

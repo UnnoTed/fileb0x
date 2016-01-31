@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -60,7 +59,7 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir) error {
 			for _, excludedFile := range c.Exclude {
 				m, err := doublestar.Match(c.Prefix+excludedFile, fixedPath)
 				if err != nil {
-					log.Fatal(err)
+					return err
 				}
 
 				if m {

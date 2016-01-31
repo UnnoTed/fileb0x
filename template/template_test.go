@@ -10,6 +10,7 @@ import (
 )
 
 func TestTemplate(t *testing.T) {
+	var err error
 	files := make(map[string]*file.File)
 	files["test_file.txt"] = &file.File{
 		Name: "test_file.txt",
@@ -21,7 +22,15 @@ func TestTemplate(t *testing.T) {
 	dirs.Insert("static/")
 
 	tp := new(Template)
-	tp.Set("files")
+
+	err = tp.Set("ayy lmao")
+	assert.Error(t, err)
+	assert.Equal(t, `Error: Template must be "files" or "file"`, err.Error())
+
+	err = tp.Set("files")
+	assert.NoError(t, err)
+	assert.Equal(t, "files", tp.name)
+
 	tp.Variables = struct {
 		Pkg     string
 		Files   map[string]*file.File
@@ -34,7 +43,18 @@ func TestTemplate(t *testing.T) {
 		DirList: dirs.Clean(),
 	}
 
+	tp.template = "wrong {{.Err pudding"
 	tmpl, err := tp.Exec()
+	assert.Error(t, err)
+	assert.Empty(t, tmpl)
+
+	tp.template = "wrong{{if .Error}} pudding {{end}}"
+	tmpl, err = tp.Exec()
+	assert.Error(t, err)
+	assert.Empty(t, tmpl)
+
+	err = tp.Set("files")
+	tmpl, err = tp.Exec()
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tmpl)
 
@@ -45,7 +65,10 @@ func TestTemplate(t *testing.T) {
 	assert.True(t, strings.Contains(s, `f, err = FS.OpenFile("static/test_file.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)`))
 
 	// now with spread
-	tp.Set("file")
+	err = tp.Set("file")
+	assert.NoError(t, err)
+	assert.Equal(t, "file", tp.name)
+
 	tp.Variables = struct {
 		Pkg  string
 		Path string
