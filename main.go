@@ -19,27 +19,33 @@ import (
 	_ "golang.org/x/net/webdav"
 )
 
+var (
+	err   error
+	cfg   *config.Config
+	files = make(map[string]*file.File)
+	dirs  = new(dir.Dir)
+)
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	var err error
-	var cfg *config.Config
-
 	// create config and try to get b0x file from args
 	f := new(config.File)
-	err = f.FromArg()
-
-	// required info
+	err = f.FromArg(true)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// load b0x file's config
 	cfg, err = f.Load()
-	cfg.Defaults()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	files := make(map[string]*file.File)
-	dirs := new(dir.Dir)
+	err = cfg.Defaults()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// loop through b0x's [custom] objects
 	for _, c := range cfg.Custom {
@@ -69,7 +75,7 @@ func main() {
 	}
 
 	// create dest folder when it doesn't exists
-	if _, err := os.Stat(cfg.Dest); os.IsNotExist(err) {
+	if !utils.Exists(cfg.Dest) {
 		err = os.MkdirAll(cfg.Dest, 0777)
 		if err != nil {
 			log.Fatal(err)

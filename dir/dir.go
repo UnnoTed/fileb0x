@@ -46,12 +46,10 @@ func (d *Dir) Parse(newDir string) []string {
 
 // Insert a new folder to the list
 func (d *Dir) Insert(newDir string) {
-	if d.Exists(newDir) {
-		return
+	if !d.Exists(newDir) {
+		d.Blacklist = append(d.Blacklist, newDir)
+		d.List = append(d.List, d.Parse(newDir))
 	}
-
-	d.Blacklist = append(d.Blacklist, newDir)
-	d.List = append(d.List, d.Parse(newDir))
 }
 
 // Clean dupes

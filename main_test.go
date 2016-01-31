@@ -43,6 +43,5 @@ func BenchmarkConvert(b *testing.B) {
 	}
 }
 
-func TestCreation(t *testing.T) {
-
+func TestVoid(t *testing.T) {
 }

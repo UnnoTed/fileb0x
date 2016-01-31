@@ -31,8 +31,8 @@ func (cfg *Config) Defaults() error {
 	}
 
 	// insert "/" at end of dest when it's not found
-	if cfg.Dest[len(cfg.Dest)-1:] != "/" {
-		cfg.Dest = "/"
+	if !strings.HasSuffix(cfg.Dest, "/") {
+		cfg.Dest += "/"
 	}
 
 	// default file name
