@@ -9,7 +9,6 @@ test:
     - go test -coverprofile=custom.coverprofile ./custom
     - go test -coverprofile=config.coverprofile ./config
     - go test -coverprofile=utils.coverprofile ./utils
-    - go test -coverprofile=file.coverprofile ./file
     - go test -coverprofile=dir.coverprofile ./dir
     - go test ./... -v
   post:

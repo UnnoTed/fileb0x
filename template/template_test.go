@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/stretchr/testify/assert"
@@ -31,16 +32,20 @@ func TestTemplate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "files", tp.name)
 
+	defaultCompression := compression.NewGzip()
+
 	tp.Variables = struct {
-		Pkg     string
-		Files   map[string]*file.File
-		Spread  bool
-		DirList []string
+		Pkg         string
+		Files       map[string]*file.File
+		Spread      bool
+		DirList     []string
+		Compression *compression.Options
 	}{
-		Pkg:     "main",
-		Files:   files,
-		Spread:  false,
-		DirList: dirs.Clean(),
+		Pkg:         "main",
+		Files:       files,
+		Spread:      false,
+		DirList:     dirs.Clean(),
+		Compression: defaultCompression.Options,
 	}
 
 	tp.template = "wrong {{.Err pudding"
@@ -69,18 +74,22 @@ func TestTemplate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "file", tp.name)
 
+	defaultCompression = compression.NewGzip()
+
 	tp.Variables = struct {
-		Pkg  string
-		Path string
-		Name string
-		Dir  [][]string
-		Data string
+		Pkg         string
+		Path        string
+		Name        string
+		Dir         [][]string
+		Data        string
+		Compression *compression.Options
 	}{
-		Pkg:  "main",
-		Path: files["test_file.txt"].Path,
-		Name: files["test_file.txt"].Name,
-		Dir:  dirs.List,
-		Data: files["test_file.txt"].Data,
+		Pkg:         "main",
+		Path:        files["test_file.txt"].Path,
+		Name:        files["test_file.txt"].Name,
+		Dir:         dirs.List,
+		Data:        files["test_file.txt"].Data,
+		Compression: defaultCompression.Options,
 	}
 
 	tmpl, err = tp.Exec()

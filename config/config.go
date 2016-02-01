@@ -5,14 +5,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/custom"
 )
 
 // Config holds the json data
 type Config struct {
-	Dest string
-	Pkg  string
-	Fmt  bool // gofmt
+	Dest        string
+	Pkg         string
+	Fmt         bool // gofmt
+	Compression *compression.Options
 
 	Output string
 

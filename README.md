@@ -6,6 +6,8 @@ features:
 
 - [x] golint safe code output
 
+- [x] optional: gzip compression (with optional run-time decompression)
+
 - [x] optional: formatTed code (gofmt)
 
 - [x] optional: spread files

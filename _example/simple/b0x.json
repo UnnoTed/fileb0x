@@ -16,6 +16,35 @@
   // default: false
   "fmt": false,
 
+  // compress files
+  // at the moment, only supports gzip
+  //
+  // type: object
+  "compression": {
+    // activates the compression
+    //
+    // type: bool
+    // default: false
+    "compress": false,
+
+    // valid values are:
+    // -> "NoCompression"
+    // -> "BestSpeed"
+    // -> "BestCompression"
+    // -> "DefaultCompression" or ""
+    //
+    // type: string
+    // default: "DefaultCompression" // when: Compress == true && Method == ""
+    "method": "",
+
+    // true = do it yourself (the file is written as gzip compressed file into the memory file system)
+    // false = decompress files at run time (before writing file into memory file system)
+    //
+    // type: bool
+    // default: false
+    "keep": false
+  },
+
   // ---------------
   // -- DANGEROUS --
   // ---------------
