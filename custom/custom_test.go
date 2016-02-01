@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/stretchr/testify/assert"
@@ -39,11 +40,18 @@ func TestCustomParse(t *testing.T) {
 
 	oldFiles := c.Files
 	c.Files = []string{"../sa8vuj948127498/*"}
-	err := c.Parse(&files, &dirs)
+
+	defaultCompression := compression.NewGzip()
+
+	sharedConfig := new(SharedConfig)
+	sharedConfig.Output = "124g98j13409b1341"
+	sharedConfig.Compression = defaultCompression
+
+	err := c.Parse(&files, &dirs, sharedConfig)
 	assert.Error(t, err)
 
 	c.Files = oldFiles
-	err = c.Parse(&files, &dirs)
+	err = c.Parse(&files, &dirs, sharedConfig)
 	assert.NoError(t, err)
 	assert.NotNil(t, files)
 	assert.NotNil(t, dirs)

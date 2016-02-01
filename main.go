@@ -9,7 +9,9 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/config"
+	"github.com/UnnoTed/fileb0x/custom"
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/UnnoTed/fileb0x/template"
@@ -47,9 +49,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// creates a config that can be inserTed into custom
+	// without causing a import cycle
+	sharedConfig := new(custom.SharedConfig)
+	sharedConfig.Output = cfg.Output
+	sharedConfig.Compression = compression.NewGzip()
+	sharedConfig.Compression.Options = cfg.Compression
+
 	// loop through b0x's [custom] objects
 	for _, c := range cfg.Custom {
-		err = c.Parse(&files, &dirs)
+		err = c.Parse(&files, &dirs, sharedConfig)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,15 +68,17 @@ func main() {
 	t := new(template.Template)
 	t.Set("files")
 	t.Variables = struct {
-		Pkg     string
-		Files   map[string]*file.File
-		Spread  bool
-		DirList []string
+		Pkg         string
+		Files       map[string]*file.File
+		Spread      bool
+		DirList     []string
+		Compression *compression.Options
 	}{
-		Pkg:     cfg.Pkg,
-		Files:   files,
-		Spread:  cfg.Spread,
-		DirList: dirs.Clean(),
+		Pkg:         cfg.Pkg,
+		Files:       files,
+		Spread:      cfg.Spread,
+		DirList:     dirs.Clean(),
+		Compression: cfg.Compression,
 	}
 	tmpl, err := t.Exec()
 	if err != nil {
@@ -116,17 +127,19 @@ func main() {
 			t := new(template.Template)
 			t.Set("file")
 			t.Variables = struct {
-				Pkg  string
-				Path string
-				Name string
-				Dir  [][]string
-				Data string
+				Pkg         string
+				Path        string
+				Name        string
+				Dir         [][]string
+				Data        string
+				Compression *compression.Options
 			}{
-				Pkg:  cfg.Pkg,
-				Path: f.Path,
-				Name: f.Name,
-				Dir:  dirs.List,
-				Data: f.Data,
+				Pkg:         cfg.Pkg,
+				Path:        f.Path,
+				Name:        f.Name,
+				Dir:         dirs.List,
+				Data:        f.Data,
+				Compression: cfg.Compression,
 			}
 			tmpl, err := t.Exec()
 			if err != nil {

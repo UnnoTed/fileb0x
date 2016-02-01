@@ -1,9 +1,11 @@
 package template
 
 var filesTemplate = `package {{.Pkg}}
+{{$Compression := .Compression}}
 
 import (
   "bytes"
+  {{if not .Spread}}{{if $Compression.Compress}}{{if not $Compression.Keep}}"compress/gzip"{{end}}{{end}}{{end}}
   "io"
   "log"
   "net/http"
@@ -44,17 +46,47 @@ func init() {
 
 {{if not .Spread}}
   var f webdav.File
+  {{if $Compression.Compress}}
+  {{if not $Compression.Keep}}
+  var rb *bytes.Reader
+  var r *gzip.Reader
+  {{end}}
+  {{end}}
 
   {{range .Files}}
+  {{if $Compression.Compress}}
+  {{if not $Compression.Keep}}
+  rb = bytes.NewReader({{exportedTitle "File"}}{{buildSafeVarName .Path}})
+  r, err = gzip.NewReader(rb)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  err = r.Close()
+  if err != nil {
+    log.Fatal(err)
+  }
+  {{end}}
+  {{end}}
+
   f, err = {{exported "FS"}}.OpenFile("{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
   if err != nil {
     log.Fatal(err)
   }
 
+  {{if $Compression.Compress}}
+  {{if not $Compression.Keep}}
+  _, err = io.Copy(f, r)
+  if err != nil {
+    log.Fatal(err)
+  }
+  {{end}}
+  {{else}}
   _, err = f.Write({{exportedTitle "File"}}{{buildSafeVarName .Path}})
   if err != nil {
     log.Fatal(err)
   }
+  {{end}}
 
   err = f.Close()
   if err != nil {

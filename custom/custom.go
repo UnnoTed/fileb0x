@@ -9,11 +9,19 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/UnnoTed/fileb0x/utils"
 	"github.com/bmatcuk/doublestar"
 )
+
+// SharedConfig holds needed data from config package
+// without causing import cycle
+type SharedConfig struct {
+	Output      string
+	Compression *compression.Gzip
+}
 
 // Custom is a set of files with dedicaTed customization
 type Custom struct {
@@ -27,7 +35,7 @@ type Custom struct {
 
 // Parse the files transforming them into a byte string and inserting the file
 // into a map of files
-func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir) error {
+func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *SharedConfig) error {
 	to := *files
 	dirList := *dirs
 
@@ -69,6 +77,9 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir) error {
 
 			// FIXME
 			// prevent including itself (destination file or dir)
+			if info.Name() == config.Output {
+				return nil
+			}
 			/*if info.Name() == cfg.Output { ||
 			  info.Name() == path.Base(path.Dir(jsonFile)) {
 			  return nil
@@ -99,6 +110,14 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir) error {
 			var buf bytes.Buffer
 			buf.WriteString(`[]byte("`)
 			f := file.NewFile()
+
+			// compress the content
+			if config.Compression.Options != nil {
+				content, err = config.Compression.Compress(content)
+				if err != nil {
+					return err
+				}
+			}
 
 			// it's way faster to loop and slice a string than a byte array
 			h := hex.EncodeToString(content)
