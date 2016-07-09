@@ -1,3 +1,68 @@
-<!doctype html><html ng-app="frontEnd" ng-strict-di=""><head><meta charset="utf-8"><title>Personal Kit</title><meta name="description" content=""><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="public/styles/vendor-c3dc771a50.css"><link rel="stylesheet" href="public/styles/app-a1ba4e2585.css"></head><body><!--[if lt IE 10]>
- <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
- <![endif]--><div ui-view=""></div><script src="public/scripts/vendor-2e50f8d4c5.js"></script><script src="public/scripts/app-13416186b8.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ayy</title>
+  <style>
+    html, body, #ufo {
+      cursor: none;
+    }
+
+    #ufo {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+    #ufo:hover, #ufo:active, #ufo:focus {
+      display: none;
+      cursor: none;
+    }
+
+    #ufo.topLeft {
+      top: 0px;
+      left: 0px;
+    }
+
+    #ufo.topCenter {
+      top: 0px;
+      left: calc(50% - (560px / 2));
+    }
+
+    #ufo.topRight {
+      top: 0px;
+      left: calc(100% - 560px);
+    }
+
+    #ufo.bottomLeft {
+      top: calc(100% - 315px);
+      left: 0px;
+    }
+
+    #ufo.bottomCenter {
+      top: calc(100% - 315px);
+      left: calc(50% - (560px / 2));
+    }
+
+    #ufo.bottomRight {
+      top: calc(100% - 315px);
+      left: calc(100% - 560px);
+    }
+  </style>
+</head>
+<body>
+  <iframe id="ufo" width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" frameborder="0" allowfullscreen></iframe>
+  <script>
+    var positions = ['Left', 'Center', 'Right'];
+    var hor = ['top', 'bottom'];
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    setInterval(function() {
+      document.querySelectorAll('#ufo')[0].className = hor[getRandomInt(0, 1)] + positions[getRandomInt(0, 2)];
+    }, 250);
+  </script>
+</body>
+</html>
