@@ -13,7 +13,7 @@ a better `go-bindata`
 Feature                               | fileb0x                       | go-bindata
 ---------------------                 | -------------                 | ------------------
 gofmt                                 | yes (optional)                | no
-golint                                | safe (optional)               | unsafe
+golint                                | safe                          | unsafe
 gzip compression                      | yes                           | yes
 gzip decompression                    | yes (optional: runtime)       | yes (on read)
 gzip compression levels               | yes                           | no
