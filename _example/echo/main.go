@@ -37,7 +37,7 @@ func main() {
 	})
 
 	// try it -> http://localhost:1337/
-	// http://localhost:1337/public/ufo.html
+	// http://localhost:1337/ufo.html
 	// http://localhost:1337/public/README.md
 	open.Run("http://localhost:1337/")
 	e.Run(standard.New(":1337"))
