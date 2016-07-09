@@ -9,6 +9,7 @@ It is a replacement to `go-bindata` that have better features and organized conf
 ######TL;DR
 a better `go-bindata`
 
+=======
 ### How does it compare to `go-bindata`?
 Feature                               | fileb0x                       | go-bindata
 ---------------------                 | -------------                 | ------------------
@@ -29,6 +30,7 @@ glob support                          | yes                           | no (walk
 regex support                         | no                            | yes (ignore files only)
 config file                           | yes (config file only)        | no (cmd args only)
 
+=======
 ### What are the benefits of using a Virtual Memory File System?
 By using a virtual memory file system you can have access to files like when they're stored in a hard drive instead of a `map[string][]byte` you would be able to use IO writer and reader.
 This means you can `read`, `write`, `remove`, `stat` and `rename` files also `make`, `remove` and `stat` directories.
@@ -37,7 +39,7 @@ This means you can `read`, `write`, `remove`, `stat` and `rename` files also `ma
 Virtual Memory File System has similar functions as a hdd stored files would have.
 
 
-
+=======
 ### Features
 
 - [x] golint safe code output
@@ -66,17 +68,18 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 
 - [x] json / yaml support
 
-
+=======
 ### TODO
 
 - [ ] toml support
 
 - [ ] scripting support (gopher-lua?)
 
-
+=======
 ### License
 MIT
 
+=======
 ### How to use it?
 
 ##### 1. Download
@@ -105,7 +108,7 @@ or if you wish to generate the embedded files through `go generate` just add and
 ```go
 //go:generate fileb0x YOUR_CONFIG_FILE.yaml
 ```
-
+=======
 ### What functions and variables fileb0x let me access and what are they for?
 
 #### HTTP
@@ -134,7 +137,7 @@ Serve files through a HTTP FileServer.
 http.ListenAndServe(":8080", http.FileServer(myEmbeddedFiles.HTTP))
 ```
 
----
+=======
 
 #### FS (File System)
 ```go
@@ -225,7 +228,7 @@ func main() {
 }
 ```
 
----
+=======
 
 #### Handler
 ```go
@@ -250,7 +253,7 @@ Serve your embedded files.
 http.ListenAndServe(":8080", myEmbeddedFiles.Handler)
 ```
 
----
+=======
 
 #### ReadFile
 ```go
@@ -284,7 +287,7 @@ if err != nil {
 log.Println(string(topSecretFile))
 ```
 
----
+=======
 
 #### WriteFile
 ```go
@@ -323,7 +326,7 @@ if err != nil {
 }
 ```
 
----
+=======
 
 ### examples
 
@@ -379,7 +382,7 @@ func main() {
 }
 ```
 
----
+=======
 
 ### How to use it with `echo`?
 ```go
