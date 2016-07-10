@@ -202,7 +202,7 @@ func main() {
 	}
 
 	// 4. checks if the file we renamed exists
-	if _, err := myEmbeddedFiles.FS.Stat("assets/programmer_memes.txt"); os.IsExist(err) {
+	if _, err = myEmbeddedFiles.FS.Stat("assets/programmer_memes.txt"); os.IsExist(err) {
 		// exists!
 
 		// tries to remove the /assets/ directory
