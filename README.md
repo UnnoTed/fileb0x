@@ -202,14 +202,7 @@ func main() {
 	}
 
 	// 4. checks if the file we renamed exists
-	stat, err := myEmbeddedFiles.FS.Stat("assets/programmer_memes.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// .Mode().IsRegular() means it is a file
-	// for directories you should use IsDir()
-	if stat.Mode().IsRegular() {
+	if _, err := myEmbeddedFiles.FS.Stat("assets/programmer_memes.txt"); os.IsExist(err) {
 		// exists!
 
 		// tries to remove the /assets/ directory
