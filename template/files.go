@@ -153,4 +153,11 @@ func {{exportedTitle "WriteFile"}}(filename string, data []byte, perm os.FileMod
   return err
 }
 
+// FileNames is a list of files included in this filebox
+var {{exportedTitle "FileNames"}} = []string {
+  {{range .Files}}
+  "{{.Path}}",
+  {{end}}
+}
+
 `
