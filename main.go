@@ -163,5 +163,5 @@ func main() {
 	}
 
 	// success
-	log.Println("fileb0x:", cfg.Dest+cfg.Output, "writen!")
+	log.Println("fileb0x:", cfg.Dest+cfg.Output, "written!")
 }
