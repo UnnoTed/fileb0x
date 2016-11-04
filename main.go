@@ -73,12 +73,14 @@ func main() {
 		Spread      bool
 		DirList     []string
 		Compression *compression.Options
+		Debug       bool
 	}{
 		Pkg:         cfg.Pkg,
 		Files:       files,
 		Spread:      cfg.Spread,
 		DirList:     dirs.Clean(),
 		Compression: cfg.Compression,
+		Debug:       cfg.Debug,
 	}
 	tmpl, err := t.Exec()
 	if err != nil {

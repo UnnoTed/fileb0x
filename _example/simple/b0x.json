@@ -76,6 +76,12 @@
   // default: false
   "spread": false,
 
+  // [debug] is a debug mode where the files are read directly from the file
+  // sytem. Useful for web dev when files change when the server is running.
+  // type: bool
+  // default: false
+  "debug": false,
+
   // type: array of objects
   "custom": [
     {
