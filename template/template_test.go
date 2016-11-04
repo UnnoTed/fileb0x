@@ -40,6 +40,7 @@ func TestTemplate(t *testing.T) {
 		Spread      bool
 		DirList     []string
 		Compression *compression.Options
+		Debug       bool
 	}{
 		Pkg:         "main",
 		Files:       files,
