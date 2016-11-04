@@ -26,7 +26,7 @@ var {{exportedTitle "HTTP"}} http.FileSystem = new({{exported "HTTPFS"}})
 // HTTPFS implements http.FileSystem
 type {{exported "HTTPFS"}} struct {}
 
-{{if not .Spread}}
+{{if (and (not .Spread) (not .Debug))}}
 {{range .Files}}
 // {{exportedTitle "File"}}{{buildSafeVarName .Path}} is a file
 var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
@@ -44,7 +44,7 @@ func init() {
   {{end}}
 {{end}}
 
-{{if not .Spread}}
+{{if (and (not .Spread) (not .Debug))}}
   var f webdav.File
   {{if $Compression.Compress}}
   {{if not $Compression.Keep}}
@@ -103,7 +103,7 @@ func init() {
 
 // Open a file
 func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
-  f, err := {{exported "FS"}}.OpenFile(path, os.O_RDONLY, 0644)
+  f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile(path, os.O_RDONLY, 0644)
   if err != nil {
     return nil, err
   }
@@ -113,7 +113,7 @@ func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
 
 // ReadFile is adapTed from ioutil
 func {{exportedTitle "ReadFile"}}(path string) ([]byte, error) {
-  f, err := {{exported "FS"}}.OpenFile(path, os.O_RDONLY, 0644)
+  f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile(path, os.O_RDONLY, 0644)
   if err != nil {
     return nil, err
   }

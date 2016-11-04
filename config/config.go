@@ -23,6 +23,7 @@ type Config struct {
 	Spread     bool
 	Unexported bool
 	Clean      bool
+	Debug      bool
 }
 
 // Defaults set the default value for some variables
