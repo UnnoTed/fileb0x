@@ -169,14 +169,14 @@ func main() {
 	// you should remove those lines ^
 
 	// 1. creates a directory
-	err := myEmbeddedFiles.FS.Mkdir("assets", 0777)
+	err := myEmbeddedFiles.FS.Mkdir(myEmbeddedFiles.CTX, myEmbeddedFiles.CTX, "assets", 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// 2. creates a file into the directory we created before and opens it
 	// with fileb0x you can use ReadFile and WriteFile instead of this complicaTed thing
-	f, err := myEmbeddedFiles.FS.OpenFile("assets/memes.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := myEmbeddedFiles.FS.OpenFile(myEmbeddedFiles.CTX, myEmbeddedFiles.CTX, "assets/memes.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -196,25 +196,25 @@ func main() {
 
 	// 3. rename a file
 	// can also move files
-	err = myEmbeddedFiles.FS.Rename("assets/memes.txt", "assets/programmer_memes.txt")
+	err = myEmbeddedFiles.FS.Rename(myEmbeddedFiles.CTX, "assets/memes.txt", "assets/programmer_memes.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// 4. checks if the file we renamed exists
-	if _, err = myEmbeddedFiles.FS.Stat("assets/programmer_memes.txt"); os.IsExist(err) {
+	if _, err = myEmbeddedFiles.FS.Stat(myEmbeddedFiles.CTX, "assets/programmer_memes.txt"); os.IsExist(err) {
 		// exists!
 
 		// tries to remove the /assets/ directory
 		// from the in-memory file system
-		err = myEmbeddedFiles.FS.RemoveAll("assets")
+		err = myEmbeddedFiles.FS.RemoveAll(myEmbeddedFiles.CTX, "assets")
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	// 5. checks if the dir we removed exists
-	if _, err = myEmbeddedFiles.FS.Stat("public/"); os.IsNotExist(err) {
+	if _, err = myEmbeddedFiles.FS.Stat(myEmbeddedFiles.CTX, "public/"); os.IsNotExist(err) {
 		// doesn't exists!
 		log.Println("works!")
 	}
@@ -392,10 +392,10 @@ func main() {
 	e := echo.New()
 
 	// enable any filename to be loaded from in-memory file system
-	e.GET("/*", standard.WrapHandler(myEmbeddedFiles.Handler))
+	e.GET("/*", echo.WrapHandler(myEmbeddedFiles.Handler))
 
 	// http://localhost:1337/public/README.md
-	e.Run(standard.New(":1337"))
+	e.Start(":1337")
 }
 ```
 
@@ -405,7 +405,7 @@ package main
 
 import (
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
+
 	// your embedded files import here ...
 	"github.com/UnnoTed/fileb0x/_example/echo/myEmbeddedFiles"
 )
@@ -429,6 +429,6 @@ func main() {
 		return c.HTML(http.StatusOK, html)
 	})
 
-	e.Run(standard.New(":1337"))
+	e.Start(":1337")
 }
 ```
