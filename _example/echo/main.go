@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
 
 	// your embedded files import here ...
 	"github.com/UnnoTed/fileb0x/_example/echo/myEmbeddedFiles"
@@ -15,10 +14,10 @@ import (
 
 func main() {
 	e := echo.New()
-	e.SetDebug(true)
+	e.Debug = true
 
 	// enable any filename to be loaded from in-memory file system
-	e.GET("/*", standard.WrapHandler(myEmbeddedFiles.Handler))
+	e.GET("/*", echo.WrapHandler(myEmbeddedFiles.Handler))
 
 	// read ufo.html from in-memory file system
 	htmlb, err := myEmbeddedFiles.ReadFile("ufo.html")
@@ -40,6 +39,5 @@ func main() {
 	// http://localhost:1337/ufo.html
 	// http://localhost:1337/public/README.md
 	open.Run("http://localhost:1337/")
-	e.Run(standard.New(":1337"))
-
+	e.Start(":1337")
 }
