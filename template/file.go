@@ -14,7 +14,7 @@ import (
   "os"
 )
 
-// {{exportedTitle "File"}}{{buildSafeVarName .Path}} is a file
+// {{exportedTitle "File"}}{{buildSafeVarName .Path}} is {{.Path}}
 var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
   {{end}}
   {{end}}
 
-  f, err := {{exported "FS"}}.OpenFile("{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
+  f, err := {{exported "FS"}}.OpenFile({{exported "CTX"}}, "{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
   if err != nil {
     log.Fatal(err)
   }

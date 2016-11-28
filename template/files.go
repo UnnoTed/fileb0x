@@ -10,18 +10,25 @@ import (
   "log"
   "net/http"
   "os"
+  "time"
 
   "golang.org/x/net/webdav"
+  "golang.org/x/net/context"
 )
 
-// FS is a virtual memory file system
-var {{exported "FS"}} = webdav.NewMemFS()
+var ( 
+  // CTX is a context for webdav vfs
+  {{exported "CTX"}} = context.Background()
 
-// Handler is used to server files through a http handler
-var {{exportedTitle "Handler"}} *webdav.Handler
+  // FS is a virtual memory file system
+  {{exported "FS"}} = webdav.NewMemFS()
 
-// HTTP is the http file system
-var {{exportedTitle "HTTP"}} http.FileSystem = new({{exported "HTTPFS"}})
+  // Handler is used to server files through a http handler
+  {{exportedTitle "Handler"}} *webdav.Handler
+
+  // HTTP is the http file system
+  {{exportedTitle "HTTP"}} http.FileSystem = new({{exported "HTTPFS"}})
+)
 
 // HTTPFS implements http.FileSystem
 type {{exported "HTTPFS"}} struct {}
@@ -35,9 +42,14 @@ var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 
 func init() {
   var err error
+
+  if {{exported "CTX"}}.Err() != nil {
+		log.Fatal({{exported "CTX"}}.Err())
+	}
+
 {{range $index, $dir := .DirList}}
   {{if ne $dir "./"}}
-  err = {{exported "FS"}}.Mkdir("{{$dir}}", 0777)
+  err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, "{{$dir}}", 0777)
   if err != nil {
     log.Fatal(err)
   }
@@ -69,7 +81,7 @@ func init() {
   {{end}}
   {{end}}
 
-  f, err = {{exported "FS"}}.OpenFile("{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
+  f, err = {{exported "FS"}}.OpenFile({{exported "CTX"}}, "{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
   if err != nil {
     log.Fatal(err)
   }
@@ -103,7 +115,7 @@ func init() {
 
 // Open a file
 func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
-  f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile(path, os.O_RDONLY, 0644)
+  f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile({{if not .Debug}}{{exported "CTX"}}, {{end}}path, os.O_RDONLY, 0644)
   if err != nil {
     return nil, err
   }
@@ -113,7 +125,7 @@ func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
 
 // ReadFile is adapTed from ioutil
 func {{exportedTitle "ReadFile"}}(path string) ([]byte, error) {
-  f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile(path, os.O_RDONLY, 0644)
+  f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile({{if not .Debug}}{{exported "CTX"}}, {{end}}path, os.O_RDONLY, 0644)
   if err != nil {
     return nil, err
   }
@@ -139,7 +151,7 @@ func {{exportedTitle "ReadFile"}}(path string) ([]byte, error) {
 
 // WriteFile is adapTed from ioutil
 func {{exportedTitle "WriteFile"}}(filename string, data []byte, perm os.FileMode) error {
-  f, err := {{exported "FS"}}.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+  f, err := {{exported "FS"}}.OpenFile({{exported "CTX"}}, filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
   if err != nil {
     return err
   }
@@ -155,8 +167,7 @@ func {{exportedTitle "WriteFile"}}(filename string, data []byte, perm os.FileMod
 
 // FileNames is a list of files included in this filebox
 var {{exportedTitle "FileNames"}} = []string {
-  {{range .Files}}
-  "{{.Path}}",
+  {{range .Files}}"{{.Path}}",
   {{end}}
 }
 
