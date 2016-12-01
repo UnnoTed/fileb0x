@@ -10,7 +10,6 @@ import (
   "log"
   "net/http"
   "os"
-  "time"
 
   "golang.org/x/net/webdav"
   "golang.org/x/net/context"
@@ -20,8 +19,12 @@ var (
   // CTX is a context for webdav vfs
   {{exported "CTX"}} = context.Background()
 
+  {{if .Debug}}
+  {{exported "FS"}} = webdav.Dir(".")
+  {{else}}
   // FS is a virtual memory file system
   {{exported "FS"}} = webdav.NewMemFS()
+  {{end}}
 
   // Handler is used to server files through a http handler
   {{exportedTitle "Handler"}} *webdav.Handler
@@ -41,12 +44,12 @@ var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 {{end}}
 
 func init() {
-  var err error
-
   if {{exported "CTX"}}.Err() != nil {
 		log.Fatal({{exported "CTX"}}.Err())
 	}
 
+{{if not .Debug}}
+var err error
 {{range $index, $dir := .DirList}}
   {{if ne $dir "./"}}
   err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, "{{$dir}}", 0777)
@@ -54,6 +57,7 @@ func init() {
     log.Fatal(err)
   }
   {{end}}
+{{end}}
 {{end}}
 
 {{if (and (not .Spread) (not .Debug))}}
