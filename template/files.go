@@ -10,7 +10,6 @@ import (
   "log"
   "net/http"
   "os"
-  "time"
 
   "golang.org/x/net/webdav"
   "golang.org/x/net/context"
