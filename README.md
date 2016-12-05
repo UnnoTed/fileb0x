@@ -169,14 +169,14 @@ func main() {
 	// you should remove those lines ^
 
 	// 1. creates a directory
-	err := myEmbeddedFiles.FS.Mkdir(myEmbeddedFiles.CTX, myEmbeddedFiles.CTX, "assets", 0777)
+	err := myEmbeddedFiles.FS.Mkdir(myEmbeddedFiles.CTX, "assets", 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// 2. creates a file into the directory we created before and opens it
 	// with fileb0x you can use ReadFile and WriteFile instead of this complicaTed thing
-	f, err := myEmbeddedFiles.FS.OpenFile(myEmbeddedFiles.CTX, myEmbeddedFiles.CTX, "assets/memes.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := myEmbeddedFiles.FS.OpenFile(myEmbeddedFiles.CTX, "assets/memes.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
