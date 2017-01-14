@@ -3,6 +3,8 @@ package custom
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -39,7 +41,33 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 	to := *files
 	dirList := *dirs
 
+	var newList []string
 	for _, customFile := range c.Files {
+		// get files from glob
+		list, err := doublestar.Glob(customFile)
+		if err != nil {
+			return err
+		}
+
+		// insert files from glob into the new list
+		newList = append(newList, list...)
+	}
+
+	// copy new list
+	c.Files = newList
+
+	// 0 files in the list
+	if len(c.Files) == 0 {
+		return errors.New("No files found")
+	}
+
+	// loop through files from glob
+	for _, customFile := range c.Files {
+		// gives error when file doesn't exist
+		if !utils.Exists(customFile) {
+			return fmt.Errorf("File [%s] doesn't exist", customFile)
+		}
+
 		customFile = utils.FixPath(customFile)
 		walkErr := filepath.Walk(customFile, func(fpath string, info os.FileInfo, err error) error {
 			if err != nil {
