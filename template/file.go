@@ -14,7 +14,7 @@ import (
   "os"
 )
 
-// {{exportedTitle "File"}}{{buildSafeVarName .Path}} is {{.Path}}
+// {{exportedTitle "File"}}{{buildSafeVarName .Path}} is "{{.Path}}"
 var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 
 func init() {

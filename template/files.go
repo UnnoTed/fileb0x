@@ -38,7 +38,7 @@ type {{exported "HTTPFS"}} struct {}
 
 {{if (and (not .Spread) (not .Debug))}}
 {{range .Files}}
-// {{exportedTitle "File"}}{{buildSafeVarName .Path}} is a file
+// {{exportedTitle "File"}}{{buildSafeVarName .Path}} is "{{.Path}}"
 var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 {{end}}
 {{end}}
