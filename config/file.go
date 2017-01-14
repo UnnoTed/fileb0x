@@ -17,7 +17,7 @@ import (
 type File struct {
 	FilePath string
 	Data     []byte
-	Mode     string // "json" || "yaml"
+	Mode     string // "json" || "yaml" || "yml"
 }
 
 // FromArg gets the json/yaml file from args
@@ -32,15 +32,15 @@ func (f *File) FromArg(read bool) error {
 	}
 
 	// when json/yaml file isn't found on last arg
-	// it searches for a ".json" or ".yaml" string in all args
-	if ext != "json" && ext != "yaml" {
+	// it searches for a ".json", ".yaml" or ".yml" string in all args
+	if ext != "json" && ext != "yaml" && ext != "yml" {
 		// loop through args
 		for _, a := range os.Args {
 			// get extension
 			ext := path.Ext(a)
 
 			// check for valid extensions
-			if ext == ".json" || ext == ".yaml" {
+			if ext == ".json" || ext == ".yaml" || ext == ".yml" {
 				f.Mode = ext[1:] // remove dot
 				ext = f.Mode
 				arg = a
@@ -53,7 +53,7 @@ func (f *File) FromArg(read bool) error {
 
 	// check if extension is json or yaml
 	// then get it's absolute path
-	if ext == "json" || ext == "yaml" {
+	if ext == "json" || ext == "yaml" || ext == "yml" {
 		abs := filepath.IsAbs(arg)
 		if !abs {
 			dir, err := utils.GetCurrentDir()
@@ -90,7 +90,7 @@ func (f *File) Parse() (*Config, error) {
 	// parse file
 	if f.Mode == "json" {
 		err = json.Unmarshal(f.Data, &to)
-	} else {
+	} else if f.Mode == "yaml" || f.Mode == "yml" {
 		err = yaml.Unmarshal(f.Data, &to)
 	}
 

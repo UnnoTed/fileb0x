@@ -1,3 +1,4 @@
+//go:generate fileb0x b0x.yaml
 package main
 
 import (
@@ -14,6 +15,7 @@ func main() {
 	}
 
 	log.Println(string(b))
+	log.Println("try it -> http://localhost:8080/public/secrets.txt")
 
 	// false = file system
 	// true = handler

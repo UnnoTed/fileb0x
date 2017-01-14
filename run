@@ -1,0 +1,7 @@
+#!/bin/bash
+
+go install
+cd ./_example/simple/
+
+./run
+cd ../../

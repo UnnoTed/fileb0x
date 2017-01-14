@@ -88,7 +88,7 @@
       // type: array of strings
       "files": [
         "../../README.md", 
-        "../../bench.bat"
+        "../../*.bat"
       ],
 
       // base is the path that will be removed from all files' path
