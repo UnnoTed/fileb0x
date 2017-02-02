@@ -9,7 +9,7 @@ import (
 	"github.com/UnnoTed/fileb0x/custom"
 )
 
-// Config holds the json data
+// Config holds the json/yaml/toml data
 type Config struct {
 	Dest        string
 	Pkg         string

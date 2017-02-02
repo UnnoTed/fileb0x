@@ -66,12 +66,10 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 
 - [x] glob support - [doublestar](https://github.com/bmatcuk/doublestar)
 
-- [x] json / yaml support
+- [x] json / yaml / toml support
 
 =======
 ### TODO
-
-- [ ] toml support
 
 - [ ] scripting support (gopher-lua?)
 
@@ -89,13 +87,15 @@ go get -u github.com/UnnoTed/fileb0x
 ```
 
 ##### 2. Create a config file
-First you need to create a config file, it can be `*.json` or `*.yaml`. (`*` means any file name)
+First you need to create a config file, it can be `*.json`, `*.yaml` or `*.toml`. (`*` means any file name)
 
 Now write into the file the configuration you wish, you can use the example files as a start.
 
 json config file example [b0x.json](https://raw.githubusercontent.com/UnnoTed/fileb0x/master/_example/simple/b0x.json)
 
 yaml config file example [b0x.yaml](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/b0x.yaml)
+
+toml config file example [b0x.yaml](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/b0x.toml)
 
 ##### 3. Run
 if you prefer to use it from the `cmd or terminal` edit and run the command below.

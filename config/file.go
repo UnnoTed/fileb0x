@@ -10,6 +10,7 @@ import (
 
 	"github.com/UnnoTed/fileb0x/utils"
 
+	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v2"
 )
 
@@ -17,10 +18,10 @@ import (
 type File struct {
 	FilePath string
 	Data     []byte
-	Mode     string // "json" || "yaml" || "yml"
+	Mode     string // "json" || "yaml" || "yml" || "toml"
 }
 
-// FromArg gets the json/yaml file from args
+// FromArg gets the json/yaml/toml file from args
 func (f *File) FromArg(read bool) error {
 	// (length - 1)
 	arg := os.Args[len(os.Args)-1:][0]
@@ -31,16 +32,16 @@ func (f *File) FromArg(read bool) error {
 		ext = ext[1:] // remove dot
 	}
 
-	// when json/yaml file isn't found on last arg
-	// it searches for a ".json", ".yaml" or ".yml" string in all args
-	if ext != "json" && ext != "yaml" && ext != "yml" {
+	// when json/yaml/toml file isn't found on last arg
+	// it searches for a ".json", ".yaml", ".yml" or ".toml" string in all args
+	if ext != "json" && ext != "yaml" && ext != "yml" && ext != "toml" {
 		// loop through args
 		for _, a := range os.Args {
 			// get extension
 			ext := path.Ext(a)
 
 			// check for valid extensions
-			if ext == ".json" || ext == ".yaml" || ext == ".yml" {
+			if ext == ".json" || ext == ".yaml" || ext == ".yml" || ext == ".toml" {
 				f.Mode = ext[1:] // remove dot
 				ext = f.Mode
 				arg = a
@@ -51,9 +52,9 @@ func (f *File) FromArg(read bool) error {
 		f.Mode = ext
 	}
 
-	// check if extension is json or yaml
+	// check if extension is json, yaml or toml
 	// then get it's absolute path
-	if ext == "json" || ext == "yaml" || ext == "yml" {
+	if ext == "json" || ext == "yaml" || ext == "yml" || ext == "toml" {
 		abs := filepath.IsAbs(arg)
 		if !abs {
 			dir, err := utils.GetCurrentDir()
@@ -92,6 +93,8 @@ func (f *File) Parse() (*Config, error) {
 		err = json.Unmarshal(f.Data, &to)
 	} else if f.Mode == "yaml" || f.Mode == "yml" {
 		err = yaml.Unmarshal(f.Data, &to)
+	} else if f.Mode == "toml" {
+		err = toml.Unmarshal(f.Data, &to)
 	}
 
 	return to, err
