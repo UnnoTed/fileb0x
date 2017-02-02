@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/config"
@@ -22,10 +24,11 @@ import (
 )
 
 var (
-	err   error
-	cfg   *config.Config
-	files = make(map[string]*file.File)
-	dirs  = new(dir.Dir)
+	err     error
+	cfg     *config.Config
+	files   = make(map[string]*file.File)
+	dirs    = new(dir.Dir)
+	cfgPath string
 )
 
 func main() {
@@ -49,6 +52,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	cfgPath = f.FilePath
+
 	// creates a config that can be inserTed into custom
 	// without causing a import cycle
 	sharedConfig := new(custom.SharedConfig)
@@ -68,6 +73,8 @@ func main() {
 	t := new(template.Template)
 	t.Set("files")
 	t.Variables = struct {
+		ConfigFile  string
+		Now         string
 		Pkg         string
 		Files       map[string]*file.File
 		Spread      bool
@@ -75,6 +82,8 @@ func main() {
 		Compression *compression.Options
 		Debug       bool
 	}{
+		ConfigFile:  filepath.Base(cfgPath),
+		Now:         time.Now().String(),
 		Pkg:         cfg.Pkg,
 		Files:       files,
 		Spread:      cfg.Spread,
@@ -129,6 +138,8 @@ func main() {
 			t := new(template.Template)
 			t.Set("file")
 			t.Variables = struct {
+				ConfigFile  string
+				Now         string
 				Pkg         string
 				Path        string
 				Name        string
@@ -136,6 +147,8 @@ func main() {
 				Data        string
 				Compression *compression.Options
 			}{
+				ConfigFile:  filepath.Base(cfgPath),
+				Now:         time.Now().String(),
 				Pkg:         cfg.Pkg,
 				Path:        f.Path,
 				Name:        f.Name,
@@ -165,5 +178,5 @@ func main() {
 	}
 
 	// success
-	log.Println("fileb0x:", cfg.Dest+cfg.Output, "written!")
+	log.Printf("fileb0x: [%s] written from config file [%s] at [%s]", cfg.Dest+cfg.Output, filepath.Base(cfgPath), time.Now().String())
 }

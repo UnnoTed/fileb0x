@@ -35,6 +35,8 @@ func TestTemplate(t *testing.T) {
 	defaultCompression := compression.NewGzip()
 
 	tp.Variables = struct {
+		ConfigFile  string
+		Now         string
 		Pkg         string
 		Files       map[string]*file.File
 		Spread      bool
@@ -78,6 +80,8 @@ func TestTemplate(t *testing.T) {
 	defaultCompression = compression.NewGzip()
 
 	tp.Variables = struct {
+		ConfigFile  string
+		Now         string
 		Pkg         string
 		Path        string
 		Name        string

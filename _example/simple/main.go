@@ -14,7 +14,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println(string(b))
+	_ = b
+	//log.Println(string(b))
 	log.Println("try it -> http://localhost:8080/public/secrets.txt")
 
 	// false = file system
