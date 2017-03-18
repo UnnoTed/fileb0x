@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/UnnoTed/fileb0x/utils"
 
@@ -55,16 +54,6 @@ func (f *File) FromArg(read bool) error {
 	// check if extension is json, yaml or toml
 	// then get it's absolute path
 	if ext == "json" || ext == "yaml" || ext == "yml" || ext == "toml" {
-		abs := filepath.IsAbs(arg)
-		if !abs {
-			dir, err := utils.GetCurrentDir()
-			if err != nil {
-				return err
-			}
-
-			arg = filepath.Clean(dir + "/" + arg)
-		}
-
 		f.FilePath = arg
 
 		// so we can test without reading a file
