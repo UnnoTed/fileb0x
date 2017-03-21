@@ -79,11 +79,11 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				return nil
 			}
 
+			fpath = utils.FixPath(fpath)
+
 			var fixedPath string
 			if c.Prefix != "" || c.Base != "" {
-				if strings.HasPrefix(c.Base, "./") {
-					c.Base = c.Base[2:]
-				}
+				c.Base = strings.TrimPrefix(c.Base, "./")
 
 				if strings.HasPrefix(fpath, c.Base) {
 					fixedPath = c.Prefix + fpath[len(c.Base):]
