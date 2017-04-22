@@ -1,15 +1,15 @@
 fileb0x [![Circle CI](https://circleci.com/gh/UnnoTed/fileb0x.svg?style=svg)](https://circleci.com/gh/UnnoTed/fileb0x) [![Coverage Status](https://coveralls.io/repos/github/UnnoTed/fileb0x/badge.svg?branch=master)](https://coveralls.io/github/UnnoTed/fileb0x?branch=master) [![GoDoc](https://godoc.org/github.com/UnnoTed/fileb0x?status.svg)](https://godoc.org/github.com/UnnoTed/fileb0x) [![GoReportCard](https://goreportcard.com/badge/unnoted/fileb0x)](https://goreportcard.com/report/unnoted/fileb0x)
-=======
+-------
 
 ### What is fileb0x?
 A Simple customizable tool to embed files in go.
 
 It is a replacement to `go-bindata` that have better features and organized configuration.
 
-######TL;DR
+###### TL;DR
 a better `go-bindata`
 
-=======
+-------
 ### How does it compare to `go-bindata`?
 Feature                               | fileb0x                       | go-bindata
 ---------------------                 | -------------                 | ------------------
@@ -30,16 +30,16 @@ glob support                          | yes                           | no (walk
 regex support                         | no                            | yes (ignore files only)
 config file                           | yes (config file only)        | no (cmd args only)
 
-=======
+-------
 ### What are the benefits of using a Virtual Memory File System?
 By using a virtual memory file system you can have access to files like when they're stored in a hard drive instead of a `map[string][]byte` you would be able to use IO writer and reader.
 This means you can `read`, `write`, `remove`, `stat` and `rename` files also `make`, `remove` and `stat` directories.
 
-######TL;DR 
+###### TL;DR 
 Virtual Memory File System has similar functions as a hdd stored files would have.
 
 
-=======
+-------
 ### Features
 
 - [x] golint safe code output
@@ -68,16 +68,16 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 
 - [x] json / yaml / toml support
 
-=======
+-------
 ### TODO
 
 - [ ] scripting support (gopher-lua?)
 
-=======
+-------
 ### License
 MIT
 
-=======
+-------
 ### How to use it?
 
 ##### 1. Download
@@ -95,7 +95,7 @@ json config file example [b0x.json](https://raw.githubusercontent.com/UnnoTed/fi
 
 yaml config file example [b0x.yaml](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/b0x.yaml)
 
-toml config file example [b0x.yaml](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/b0x.toml)
+toml config file example [b0x.toml](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/b0x.toml)
 
 ##### 3. Run
 if you prefer to use it from the `cmd or terminal` edit and run the command below.
@@ -108,7 +108,7 @@ or if you wish to generate the embedded files through `go generate` just add and
 ```go
 //go:generate fileb0x YOUR_CONFIG_FILE.yaml
 ```
-=======
+-------
 ### What functions and variables fileb0x let me access and what are they for?
 
 #### HTTP
@@ -137,7 +137,8 @@ Serve files through a HTTP FileServer.
 http.ListenAndServe(":8080", http.FileServer(myEmbeddedFiles.HTTP))
 ```
 
-=======
+-------
+-------
 
 #### FS (File System)
 ```go
@@ -221,7 +222,8 @@ func main() {
 }
 ```
 
-=======
+-------
+-------
 
 #### Handler
 ```go
@@ -246,7 +248,8 @@ Serve your embedded files.
 http.ListenAndServe(":8080", myEmbeddedFiles.Handler)
 ```
 
-=======
+-------
+-------
 
 #### ReadFile
 ```go
@@ -280,7 +283,8 @@ if err != nil {
 log.Println(string(topSecretFile))
 ```
 
-=======
+-------
+-------
 
 #### WriteFile
 ```go
@@ -319,7 +323,8 @@ if err != nil {
 }
 ```
 
-=======
+-------
+-------
 
 ### examples
 
@@ -375,7 +380,8 @@ func main() {
 }
 ```
 
-=======
+-------
+-------
 
 ### How to use it with `echo`?
 ```go
