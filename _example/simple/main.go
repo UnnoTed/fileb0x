@@ -9,6 +9,13 @@ import (
 )
 
 func main() {
+	files, err := static.WalkDirs("", false)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("ALL FILES", files)
+
 	b, err := static.ReadFile("public/README.md")
 	if err != nil {
 		log.Fatal(err)

@@ -12,6 +12,7 @@ import (
   "log"
   "net/http"
   "os"
+  "path"
 
   "golang.org/x/net/webdav"
   "golang.org/x/net/context"
@@ -171,10 +172,36 @@ func {{exportedTitle "WriteFile"}}(filename string, data []byte, perm os.FileMod
   return err
 }
 
-// FileNames is a list of files included in this filebox
-var {{exportedTitle "FileNames"}} = []string {
-  {{range .Files}}"{{.Path}}",
-  {{end}}
+// WalkDirs looks for files in the given dir and returns a list of files in it
+// usage for all files in the b0x: WalkDirs("", false)
+func {{exportedTitle "WalkDirs"}}(name string, includeDirsInList bool, files ...string) ([]string, error) {
+	f, err := {{exported "FS"}}.OpenFile({{exported "CTX"}}, name, os.O_RDONLY, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	fileInfos, err := f.Readdir(0)
+	f.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, info := range fileInfos {
+		filename := path.Join(name, info.Name())
+
+		if includeDirsInList || !info.IsDir() {
+			files = append(files, filename)
+		}
+
+		if info.IsDir() {
+			files, err = {{exportedTitle "WalkDirs"}}(filename, includeDirsInList, files...)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return files, nil
 }
 
 `

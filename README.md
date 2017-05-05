@@ -1,10 +1,10 @@
-fileb0x [![Circle CI](https://circleci.com/gh/UnnoTed/fileb0x.svg?style=svg)](https://circleci.com/gh/UnnoTed/fileb0x) [![Coverage Status](https://coveralls.io/repos/github/UnnoTed/fileb0x/badge.svg?branch=master)](https://coveralls.io/github/UnnoTed/fileb0x?branch=master) [![GoDoc](https://godoc.org/github.com/UnnoTed/fileb0x?status.svg)](https://godoc.org/github.com/UnnoTed/fileb0x) [![GoReportCard](https://goreportcard.com/badge/unnoted/fileb0x)](https://goreportcard.com/report/unnoted/fileb0x)
+fileb0x [![Circle CI](https://circleci.com/gh/UnnoTed/fileb0x.svg?style=svg)](https://circleci.com/gh/UnnoTed/fileb0x) [![GoDoc](https://godoc.org/github.com/UnnoTed/fileb0x?status.svg)](https://godoc.org/github.com/UnnoTed/fileb0x) [![GoReportCard](https://goreportcard.com/badge/unnoted/fileb0x)](https://goreportcard.com/report/unnoted/fileb0x)
 -------
 
 ### What is fileb0x?
-A Simple customizable tool to embed files in go.
+A better customizable tool to embed files in go.
 
-It is a replacement to `go-bindata` that have better features and organized configuration.
+It is an alternative to `go-bindata` that have better features and organized configuration.
 
 ###### TL;DR
 a better `go-bindata`
@@ -71,7 +71,7 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 -------
 ### TODO
 
-- [ ] scripting support (gopher-lua?)
+- [ ] Update files remotely
 
 -------
 ### License
@@ -326,6 +326,38 @@ if err != nil {
 -------
 -------
 
+#### WalkDirs
+```go
+func WalkDirs(name string, includeDirsInList bool, files ...string) ([]string, error) {
+```
+
+##### Type
+`[]string`
+
+##### What is it?
+
+A Helper function to walk dirs from the in-memory file system.
+
+##### What it does?
+
+Returns a list of files (with option to include dirs) that are currently in the in-memory file system.
+
+##### How to use it?
+```go
+includeDirsInTheList := false
+
+// WalkDirs returns a string slice with all file paths
+files, err := myEmbeddedFiles.WalkDirs("", includeDirsInTheList)
+if err != nil {
+	log.Fatal(err)
+}
+
+log.Println("List of all my files", files)
+```
+
+-------
+-------
+
 ### examples
 
 [simple example](https://github.com/UnnoTed/fileb0x/tree/master/_example/simple) -
@@ -346,6 +378,13 @@ import (
 )
 
 func main() {
+	files, err := static.WalkDirs("", false)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("ALL FILES", files)
+
   // here we'll read the file from the virtual file system
 	b, err := static.ReadFile("public/README.md")
 	if err != nil {
