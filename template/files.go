@@ -54,9 +54,9 @@ func init() {
 {{if not .Debug}}
 var err error
 {{range $index, $dir := .DirList}}
-  {{if ne $dir "./"}}
+  {{if and (ne $dir "./") (ne $dir "/") (ne $dir ".") (ne $dir "")}}
   err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, "{{$dir}}", 0777)
-  if err != nil {
+  if err != nil && err != os.ErrExist {
     log.Fatal(err)
   }
   {{end}}
