@@ -79,6 +79,7 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				return nil
 			}
 
+			originalPath := fpath
 			fpath = utils.FixPath(fpath)
 
 			var fixedPath string
@@ -126,6 +127,8 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				return err
 			}
 
+			replaced := false
+
 			// loop through replace list
 			for _, r := range c.Replace {
 				// check if path matches the pattern from property: file
@@ -137,6 +140,7 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				if matched {
 					for pattern, word := range r.Replace {
 						content = []byte(strings.Replace(string(content), pattern, word, -1))
+						replaced = true
 					}
 				}
 			}
@@ -163,9 +167,11 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				buf.WriteString(`\x` + h[i:i+2])
 			}
 
+			f.OriginalPath = originalPath
 			f.Data = buf.String() + `")`
 			f.Name = info.Name()
 			f.Path = fixedPath
+			f.ReplacedText = replaced
 
 			// insert dir to dirlist so it can be created on b0x's init()
 			dirList.Insert(path.Dir(fixedPath))

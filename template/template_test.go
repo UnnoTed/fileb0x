@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/UnnoTed/fileb0x/compression"
+	"github.com/UnnoTed/fileb0x/config"
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/stretchr/testify/assert"
@@ -43,6 +44,7 @@ func TestTemplate(t *testing.T) {
 		DirList     []string
 		Compression *compression.Options
 		Debug       bool
+		Updater     config.Updater
 	}{
 		Pkg:         "main",
 		Files:       files,
@@ -88,6 +90,7 @@ func TestTemplate(t *testing.T) {
 		Dir         [][]string
 		Data        string
 		Compression *compression.Options
+		Updater     config.Updater
 	}{
 		Pkg:         "main",
 		Path:        files["test_file.txt"].Path,

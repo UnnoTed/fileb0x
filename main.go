@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"go/format"
 	"io/ioutil"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,9 +19,11 @@ import (
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/UnnoTed/fileb0x/template"
+	"github.com/UnnoTed/fileb0x/updater"
 	"github.com/UnnoTed/fileb0x/utils"
 
 	// just to install automatically
+	_ "github.com/labstack/echo"
 	_ "golang.org/x/net/webdav"
 )
 
@@ -29,10 +33,20 @@ var (
 	files   = make(map[string]*file.File)
 	dirs    = new(dir.Dir)
 	cfgPath string
+
+	fUpdate string
 )
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	// check for updates
+	flag.StringVar(&fUpdate, "update", "", "-update=http(s)://host:port - default port: 8041")
+	flag.Parse()
+	var (
+		update = fUpdate != ""
+		up     *updater.Updater
+	)
 
 	// create config and try to get b0x file from args
 	f := new(config.File)
@@ -53,6 +67,10 @@ func main() {
 	}
 
 	cfgPath = f.FilePath
+
+	if err := cfg.Updater.CheckInfo(); err != nil {
+		log.Fatal(err)
+	}
 
 	// creates a config that can be inserTed into custom
 	// without causing a import cycle
@@ -81,6 +99,7 @@ func main() {
 		DirList     []string
 		Compression *compression.Options
 		Debug       bool
+		Updater     config.Updater
 	}{
 		ConfigFile:  filepath.Base(cfgPath),
 		Now:         time.Now().String(),
@@ -90,7 +109,9 @@ func main() {
 		DirList:     dirs.Clean(),
 		Compression: cfg.Compression,
 		Debug:       cfg.Debug,
+		Updater:     cfg.Updater,
 	}
+
 	tmpl, err := t.Exec()
 	if err != nil {
 		log.Fatal(err)
@@ -179,4 +200,33 @@ func main() {
 
 	// success
 	log.Printf("fileb0x: [%s] written from config file [%s] at [%s]", cfg.Dest+cfg.Output, filepath.Base(cfgPath), time.Now().String())
+
+	if update {
+		if !cfg.Updater.Enabled {
+			log.Fatal("fileb0x: The updater is disabled, enable it in your config file!")
+		}
+
+		// includes port when not present
+		if !strings.HasSuffix(fUpdate, ":"+strconv.Itoa(cfg.Updater.Port)) {
+			fUpdate += ":" + strconv.Itoa(cfg.Updater.Port)
+		}
+
+		up = &updater.Updater{
+			Server: fUpdate,
+			Auth: updater.Auth{
+				Username: cfg.Updater.Username,
+				Password: cfg.Updater.Password,
+			},
+		}
+
+		// get file hashes from server
+		if err := up.Init(); err != nil {
+			panic(err)
+		}
+
+		// check if an update is available, then updates...
+		if err := up.UpdateFiles(files); err != nil {
+			panic(err)
+		}
+	}
 }

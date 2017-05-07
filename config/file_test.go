@@ -29,11 +29,11 @@ func TestFileFromArg(t *testing.T) {
 
 	err := f.FromArg(false)
 	assert.Error(t, err)
-	assert.Equal(t, "Error: You must specify a json or yaml file", err.Error())
+	assert.Equal(t, "Error: You must specify a json, yaml or toml file", err.Error())
 
 	err = f.FromArg(true)
 	assert.Error(t, err)
-	assert.Equal(t, "Error: You must specify a json or yaml file", err.Error())
+	assert.Equal(t, "Error: You must specify a json, yaml or toml file", err.Error())
 
 	loadFromArgs(t, "json")
 }

@@ -2,10 +2,12 @@ package file
 
 // File holds file's data
 type File struct {
-	Name  string
-	Path  string
-	Data  string
-	Bytes []byte
+	OriginalPath string
+	Name         string
+	Path         string
+	Data         string
+	Bytes        []byte
+	ReplacedText bool
 }
 
 // NewFile creates a new File

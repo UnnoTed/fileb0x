@@ -63,7 +63,7 @@ func (f *File) FromArg(read bool) error {
 			}
 		}
 	} else {
-		return errors.New("Error: You must specify a json or yaml file")
+		return errors.New("Error: You must specify a json, yaml or toml file")
 	}
 
 	return nil

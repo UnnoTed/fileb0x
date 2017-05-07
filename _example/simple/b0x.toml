@@ -12,6 +12,19 @@ dest = "./static/"
 # default: false
 fmt = false
 
+# updater allows you to update a b0x in a running server
+# without having to restart it
+[updater]
+  # disabled by default
+  enabled = false
+  # to get a username and password from a env variable
+  # leave username and password blank (username = "")
+  # then set your username and password in the env vars 
+  # (no caps) -> fileb0x_username and fileb0x_password
+  username = "user"
+  password = "pass"
+  port = 8041
+
 # compress files
 # at the moment, only supports gzip
 #

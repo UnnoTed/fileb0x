@@ -29,6 +29,7 @@ replace text in files                 | yes                           | no
 glob support                          | yes                           | no (walk folders only)
 regex support                         | no                            | yes (ignore files only)
 config file                           | yes (config file only)        | no (cmd args only)
+update files remotely                 | yes                           | no
 
 -------
 ### What are the benefits of using a Virtual Memory File System?
@@ -68,10 +69,7 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 
 - [x] json / yaml / toml support
 
--------
-### TODO
-
-- [ ] Update files remotely
+- [x] optional: Update files remotely
 
 -------
 ### License
@@ -477,3 +475,41 @@ func main() {
 	e.Start(":1337")
 }
 ```
+
+-------
+-------
+
+#### Update files remotely
+Having to upload an entire binary just to update some files in a b0x and restart a server isn't something that i like to do...
+
+##### How it works?
+By enabling the updater option, the next time that you generate a b0x, it will include a http server, this http server will use a http basic auth and it contains 1 endpoint `/` that accepts 2 methods: `GET, POST`.
+
+The `GET` method responds with a list of file names and sha256 hash of each file.
+The `POST` method is used to upload files, it creates the directory tree of a new file and then creates the file or it updates an existing file from the virtual memory file system... it responds with a `ok` string when the upload is successful.
+
+##### How to update files remotely?
+1. First enable the updater option in your config file:
+```yaml
+##################
+## yaml example ##
+##################
+
+# updater allows you to update a b0x in a running server
+# without having to restart it
+updater:
+  # disabled by default
+  enabled: false
+  # to get a username and password from a env variable
+  # leave username and password blank (username: "")
+  # then set your username and password in the env vars 
+  # (no caps) -> fileb0x_username and fileb0x_password
+	#
+	# when using env vars, set it before generating a b0x 
+	# so it can be applied to the updater server.
+  username: "user" # username: ""
+  password: "pass" # password: ""
+  port: 8041
+```
+2. Generate a b0x with the updater option enabled, don't forget to set the username and password for authentication.
+3. When your files update, just run `fileb0x -update=http://yourServer.com:8041 b0x.toml` to update the files in the running server.
