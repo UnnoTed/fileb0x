@@ -319,7 +319,8 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
 
   newDir := filepath.Dir(file.Filename)
   _, err = {{exported "FS"}}.Stat({{exported "CTX"}}, newDir)
-  if err == os.ErrNotExist {
+  if err != nil && strings.HasSuffix(err.Error(), os.ErrNotExist.Error()) {
+    log.Println("[fileb0x.Server]: Creating dir tree", newDir)
     list := strings.Split(newDir, "/")
     var tree string
     
@@ -339,8 +340,8 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
   }
 
   log.Println("[fileb0x.Server]:", file.Filename, "Opening file...")
-  f, err := FS.OpenFile(CTX, file.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-  if err != nil {
+  f, err := {{exported "FS"}}.OpenFile({{exported "CTX"}}, file.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
+  if err != nil && strings.HasSuffix(err.Error(), os.ErrNotExist.Error()) {
     return err
   }
 
@@ -348,6 +349,10 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
   if _, err = io.Copy(f, src); err != nil {
 		return err
 	}
+
+  if err = f.Close(); err != nil {
+    return err
+  }
 
   log.Println("[fileb0x.Server]:", file.Filename, "Done writing file")
   return c.String(http.StatusOK, "ok")
