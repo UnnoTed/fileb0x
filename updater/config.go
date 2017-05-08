@@ -10,6 +10,7 @@ type Config struct {
 	Username   string
 	Password   string
 	Enabled    bool
+	Workers    int
 	Empty      bool
 	Port       int
 }

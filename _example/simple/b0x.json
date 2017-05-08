@@ -30,6 +30,9 @@
     // it avoids long compile time
     "empty": false,
 
+    // amount of uploads at the same time
+    "workers": 3,
+
     // to get a username and password from a env variable
     // leave username and password blank ("username": "")
     // then set your username and password in the env vars 

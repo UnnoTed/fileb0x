@@ -223,6 +223,7 @@ func main() {
 				Username: cfg.Updater.Username,
 				Password: cfg.Updater.Password,
 			},
+			Workers: cfg.Updater.Workers,
 		}
 
 		// get file hashes from server

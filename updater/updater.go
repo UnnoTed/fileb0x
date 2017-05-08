@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -13,13 +14,13 @@ import (
 
 	"encoding/hex"
 
-	"sync"
-
 	"encoding/json"
 
 	"github.com/UnnoTed/fileb0x/file"
-	"github.com/cheggaaa/pb"
+	"github.com/vbauerster/mpb"
 )
+
+var p *mpb.Progress
 
 // Auth holds authentication for the http basic auth
 type Auth struct {
@@ -43,6 +44,7 @@ type Updater struct {
 	RemoteHashes map[string]string
 	LocalHashes  map[string]string
 	ToUpdate     []string
+	Workers      int
 }
 
 // Init gets the list of file hash from the server
@@ -200,6 +202,12 @@ func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 	return
 }
 
+type job struct {
+	current int
+	files   *file.File
+	total   int
+}
+
 // UpdateFiles sends all files that should be updated to the server
 // the limit is 3 concurrent files at once
 func (up *Updater) UpdateFiles(files map[string]*file.File) error {
@@ -212,102 +220,111 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 		return nil
 	}
 
-	var wg sync.WaitGroup
-
 	// progressbar pool
-	bpool, err := pb.StartPool()
-	if err != nil {
-		panic(err)
+	p = mpb.New().SetWidth(100)
+
+	total := len(up.ToUpdate)
+
+	defer p.Stop()
+	jobs := make(chan *job, total)
+	done := make(chan bool, total)
+
+	if up.Workers <= 0 {
+		up.Workers = 1
 	}
 
-	defer bpool.Stop()
-	var current int64
+	for i := 0; i < up.Workers; i++ {
+		go up.worker(jobs, done)
+	}
 
-	// Let's handle the clients asynchronously
-	for _, name := range up.ToUpdate {
-		for current == 3 {
+	for i, name := range up.ToUpdate {
+		jobs <- &job{
+			current: i + 1,
+			files:   files[name],
+			total:   total,
+		}
+	}
+	close(jobs)
+
+	for i := 0; i < total; i++ {
+		<-done
+	}
+	return nil
+}
+
+func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
+	for job := range jobs {
+		f := job.files
+		// log.Println("RUNNING JOB", fmt.Sprintf("%d/%d %s", job.current, job.total, f.Path))
+
+		fr := bytes.NewReader(f.Bytes)
+
+		barText := fmt.Sprintf("%d/%d | %s |", job.current, job.total, f.Path)
+		bar := p.AddBar(fr.Size()).
+			PrependName(barText, len(barText), 0).
+			PrependCounters("%3s / %3s", mpb.UnitBytes, 18, mpb.DwidthSync|mpb.DextraSpace).
+			AppendPercentage(0, mpb.DwidthSync|mpb.DextraSpace).
+			AppendETA(2, mpb.DwidthSync|mpb.DextraSpace)
+
+		// updates the progressbar
+		pr := &ProgressReader{fr, func(r int64) {
+			bar.Incr(int(r))
+		}}
+
+		r, w := io.Pipe()
+		writer := multipart.NewWriter(w)
+
+		// copy the file into the form
+		go func(pr *ProgressReader) {
+			defer w.Close()
+			part, err := writer.CreateFormFile("file", f.Path)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			_, err = io.Copy(part, pr)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			err = writer.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}(pr)
+
+		// create a post request with basic auth
+		// and the file included in a form
+		req, err := http.NewRequest("POST", up.Server, r)
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		current++
-		wg.Add(1)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		req.SetBasicAuth(up.Auth.Username, up.Auth.Password)
 
-		go func(name string, wg *sync.WaitGroup) {
-			defer wg.Done()
-			defer func() {
-				current--
-			}()
+		// sends the request
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-			f := files[name]
-			fr := bytes.NewReader(f.Bytes)
+		body := &bytes.Buffer{}
+		_, err = body.ReadFrom(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-			bar := pb.New64(fr.Size()).SetUnits(pb.U_BYTES)
-			bar.ShowSpeed = true
-			bar.ShowTimeLeft = true
-			bar.Prefix(f.Path)
-			defer bar.Finish()
+		if err := resp.Body.Close(); err != nil {
+			log.Fatal(err)
+		}
 
-			// insert the bar into the progressbar pool
-			bpool.Add(bar)
+		if body.String() != "ok" {
+			log.Fatal(body.String())
+		}
 
-			// updates the progressbar
-			pr := &ProgressReader{fr, func(r int64) {
-				bar.Add64(r)
-			}}
-
-			r, w := io.Pipe()
-			writer := multipart.NewWriter(w)
-
-			// copy the file into the form
-			go func(pr *ProgressReader) {
-				defer w.Close()
-				part, err := writer.CreateFormFile("file", f.Path)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				_, err = io.Copy(part, pr)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				err = writer.Close()
-				if err != nil {
-					log.Fatal(err)
-				}
-			}(pr)
-
-			// create a post request with basic auth
-			// and the file included in a form
-			req, err := http.NewRequest("POST", up.Server, r)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			req.Header.Set("Content-Type", writer.FormDataContentType())
-			req.SetBasicAuth(up.Auth.Username, up.Auth.Password)
-
-			// sends the request
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				log.Fatal(err)
-
-			} else {
-				body := &bytes.Buffer{}
-				_, err := body.ReadFrom(resp.Body)
-				if err != nil {
-					log.Fatal(err)
-				}
-				resp.Body.Close()
-
-				if body.String() != "ok" {
-					log.Fatal(body.String())
-				}
-			}
-
-		}(name, &wg)
+		bar.Completed()
+		done <- true
 	}
-
-	wg.Wait()
-	return nil
 }
