@@ -501,7 +501,7 @@ updater:
   # disabled by default
   enabled: false
 
-	# empty mode creates a empty b0x file with just the 
+  # empty mode creates a empty b0x file with just the 
   # server and the filesystem, then you'll have to upload
   # the files later using the cmd:
   # fileb0x -update=http://server.com:port b0x.yaml
