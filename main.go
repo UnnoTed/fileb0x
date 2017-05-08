@@ -34,7 +34,8 @@ var (
 	dirs    = new(dir.Dir)
 	cfgPath string
 
-	fUpdate string
+	fUpdate   string
+	startTime = time.Now()
 )
 
 func main() {
@@ -72,10 +73,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	cfg.Updater.IsUpdating = update
+
 	// creates a config that can be inserTed into custom
 	// without causing a import cycle
 	sharedConfig := new(custom.SharedConfig)
 	sharedConfig.Output = cfg.Output
+	sharedConfig.Updater = cfg.Updater
 	sharedConfig.Compression = compression.NewGzip()
 	sharedConfig.Compression.Options = cfg.Compression
 
@@ -99,7 +103,7 @@ func main() {
 		DirList     []string
 		Compression *compression.Options
 		Debug       bool
-		Updater     config.Updater
+		Updater     updater.Config
 	}{
 		ConfigFile:  filepath.Base(cfgPath),
 		Now:         time.Now().String(),
@@ -199,7 +203,9 @@ func main() {
 	}
 
 	// success
-	log.Printf("fileb0x: [%s] written from config file [%s] at [%s]", cfg.Dest+cfg.Output, filepath.Base(cfgPath), time.Now().String())
+	log.Printf("fileb0x: took [%dms] to write [%s] from config file [%s] at [%s]",
+		time.Since(startTime).Nanoseconds()/1e6, cfg.Dest+cfg.Output,
+		filepath.Base(cfgPath), time.Now().String())
 
 	if update {
 		if !cfg.Updater.Enabled {

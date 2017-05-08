@@ -42,4 +42,7 @@ func TestVarName(t *testing.T) {
 
 	s = buildSafeVarName(`a/sql/variable.name`)
 	assert.Equal(t, `ASQLVariableName`, s)
+
+	s = buildSafeVarName(`a/sql/_variable.name`)
+	assert.Equal(t, `ASQLVariableName2`, s)
 }

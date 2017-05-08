@@ -1,45 +1,14 @@
 package config
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/custom"
+	"github.com/UnnoTed/fileb0x/updater"
 )
-
-type Updater struct {
-	Username string
-	Password string
-	Enabled  bool
-	Port     int
-}
-
-func (u Updater) CheckInfo() error {
-	if !u.Enabled {
-		return nil
-	}
-
-	if u.Username == "{FROM_ENV}" || u.Username == "" {
-		u.Username = os.Getenv("fileb0x_username")
-	}
-
-	if u.Password == "{FROM_ENV}" || u.Password == "" {
-		u.Password = os.Getenv("fileb0x_password")
-	}
-
-	// check for empty username and password
-	if u.Username == "" {
-		return errors.New("fileb0x: You must provide an username in the config file or through an env var: fileb0x_username")
-
-	} else if u.Password == "" {
-		return errors.New("fileb0x: You must provide an password in the config file or through an env var: fileb0x_password")
-	}
-
-	return nil
-}
 
 // Config holds the json/yaml/toml data
 type Config struct {
@@ -56,7 +25,7 @@ type Config struct {
 	Unexported bool
 	Clean      bool
 	Debug      bool
-	Updater    Updater
+	Updater    updater.Config
 }
 
 // Defaults set the default value for some variables

@@ -62,7 +62,10 @@ func init() {
 	}
 
 {{if not .Debug}}
+{{if not .Updater.Empty}}
 var err error
+{{end}}
+
 {{range $index, $dir := .DirList}}
   {{if and (ne $dir "./") (ne $dir "/") (ne $dir ".") (ne $dir "")}}
   err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, "{{$dir}}", 0777)
@@ -74,7 +77,10 @@ var err error
 {{end}}
 
 {{if (and (not .Spread) (not .Debug))}}
+  {{if not .Updater.Empty}}
   var f webdav.File
+  {{end}}
+
   {{if $Compression.Compress}}
   {{if not $Compression.Keep}}
   var rb *bytes.Reader
@@ -330,7 +336,6 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
       }
 
       tree += dir + "/"
-      log.Println("dir", tree)
       err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, tree, 0777)
       if err != nil && err != os.ErrExist {
         log.Println("failed", err)
@@ -341,7 +346,7 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
 
   log.Println("[fileb0x.Server]:", file.Filename, "Opening file...")
   f, err := {{exported "FS"}}.OpenFile({{exported "CTX"}}, file.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
-  if err != nil && strings.HasSuffix(err.Error(), os.ErrNotExist.Error()) {
+  if err != nil && !strings.HasSuffix(err.Error(), os.ErrNotExist.Error()) {
     return err
   }
 

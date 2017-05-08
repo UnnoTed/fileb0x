@@ -14,6 +14,7 @@ import (
 	"github.com/UnnoTed/fileb0x/compression"
 	"github.com/UnnoTed/fileb0x/dir"
 	"github.com/UnnoTed/fileb0x/file"
+	"github.com/UnnoTed/fileb0x/updater"
 	"github.com/UnnoTed/fileb0x/utils"
 	"github.com/bmatcuk/doublestar"
 )
@@ -23,6 +24,7 @@ import (
 type SharedConfig struct {
 	Output      string
 	Compression *compression.Gzip
+	Updater     updater.Config
 }
 
 // Custom is a set of files with dedicaTed customization
@@ -34,6 +36,8 @@ type Custom struct {
 	Exclude []string
 	Replace []Replacer
 }
+
+var xx = []byte(`\x`)
 
 // Parse the files transforming them into a byte string and inserting the file
 // into a map of files
@@ -70,6 +74,10 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 
 		customFile = utils.FixPath(customFile)
 		walkErr := filepath.Walk(customFile, func(fpath string, info os.FileInfo, err error) error {
+			if config.Updater.Empty && !config.Updater.IsUpdating {
+				return nil
+			}
+
 			if err != nil {
 				return err
 			}
@@ -145,10 +153,13 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				}
 			}
 
+			var (
+				buf bytes.Buffer
+				f   = file.NewFile()
+			)
+
 			// it's way faster to use a buffer as string than use string
-			var buf bytes.Buffer
 			buf.WriteString(`[]byte("`)
-			f := file.NewFile()
 
 			// compress the content
 			if config.Compression.Options != nil {
@@ -162,16 +173,17 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 			h := hex.EncodeToString(content)
 
 			// loop through hex string, at each 2 chars
-			// it's added into a byte array -> []byte{0x61 ,...}
+			// it's added into a byte array -> []byte("\x09\x11...")
 			for i := 0; i < len(h); i += 2 {
-				buf.WriteString(`\x` + h[i:i+2])
+				buf.Write(xx)
+				buf.WriteString(h[i : i+2])
 			}
 
 			f.OriginalPath = originalPath
+			f.ReplacedText = replaced
 			f.Data = buf.String() + `")`
 			f.Name = info.Name()
 			f.Path = fixedPath
-			f.ReplacedText = replaced
 
 			// insert dir to dirlist so it can be created on b0x's init()
 			dirList.Insert(path.Dir(fixedPath))

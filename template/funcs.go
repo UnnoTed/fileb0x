@@ -2,11 +2,15 @@ package template
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 
 	"github.com/UnnoTed/fileb0x/config"
 )
+
+var safeNameBlacklist = map[string]string{}
+var blacklist = map[string]int{}
 
 // taken from golint @ https://github.com/golang/lint/blob/master/lint.go#L702
 var commonInitialisms = map[string]bool{
@@ -80,10 +84,15 @@ func exportedTitle(field string) string {
 }
 
 func buildSafeVarName(path string) string {
+	name, exists := safeNameBlacklist[path]
+	if exists {
+		return name
+	}
+
 	n := config.SafeVarName.ReplaceAllString(path, "$")
 	words := strings.Split(n, "$")
 
-	var name string
+	name = ""
 	// check for uppercase words
 	for _, word := range words {
 		upper := strings.ToUpper(word)
@@ -95,5 +104,18 @@ func buildSafeVarName(path string) string {
 		}
 	}
 
+	// avoid redeclaring variables
+	//
+	// _file.txt
+	// file.txt
+	_, blacklisted := blacklist[name]
+
+	if blacklisted {
+		blacklist[name]++
+		name += strconv.Itoa(blacklist[name])
+	}
+
+	safeNameBlacklist[path] = name
+	blacklist[name]++
 	return name
 }

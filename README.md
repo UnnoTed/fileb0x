@@ -500,6 +500,15 @@ The `POST` method is used to upload files, it creates the directory tree of a ne
 updater:
   # disabled by default
   enabled: false
+
+	# empty mode creates a empty b0x file with just the 
+  # server and the filesystem, then you'll have to upload
+  # the files later using the cmd:
+  # fileb0x -update=http://server.com:port b0x.yaml
+  #
+  # it avoids long compile time
+  empty: false
+
   # to get a username and password from a env variable
   # leave username and password blank (username: "")
   # then set your username and password in the env vars 
@@ -507,9 +516,9 @@ updater:
 	#
 	# when using env vars, set it before generating a b0x 
 	# so it can be applied to the updater server.
-  username: "user" # username: ""
-  password: "pass" # password: ""
-  port: 8041
+	username: "user" # username: ""
+	password: "pass" # password: ""
+	port: 8041
 ```
 2. Generate a b0x with the updater option enabled, don't forget to set the username and password for authentication.
 3. When your files update, just run `fileb0x -update=http://yourServer.com:8041 b0x.toml` to update the files in the running server.
