@@ -40,7 +40,7 @@ This means you can `read`, `write`, `remove`, `stat` and `rename` files also `ma
 Virtual Memory File System has similar functions as a hdd stored files would have.
 
 
--------
+
 ### Features
 
 - [x] golint safe code output
@@ -71,12 +71,12 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 
 - [x] optional: Update files remotely
 
--------
+
 ### License
 MIT
 
--------
-#### Get Started
+
+### Get Started
 
 <details> 
 
@@ -112,7 +112,7 @@ or if you wish to generate the embedded files through `go generate` just add and
 ```
 
 </details>
--------
+
 <details> 
   <summary>What functions and variables fileb0x let me access and what are they for?</summary>
 
@@ -142,8 +142,6 @@ Serve files through a HTTP FileServer.
 http.ListenAndServe(":8080", http.FileServer(myEmbeddedFiles.HTTP))
 ```
 </details>
--------
--------
 <details> 
   <summary>How to use it with `echo`?</summary>
 
@@ -203,11 +201,9 @@ func main() {
 ```
 
 </details>
--------
--------
 
 <details> 
-  <summary>examples</summary>
+  <summary>Examples</summary>
 
 [simple example](https://github.com/UnnoTed/fileb0x/tree/master/_example/simple) -
 [main.go](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/main.go)
@@ -268,8 +264,6 @@ func main() {
 }
 ```
 </details>
--------
--------
 <details> 
 
 <summary>Update files remotely</summary>
@@ -322,10 +316,8 @@ updater:
 3. When your files update, just run `fileb0x -update=http://yourServer.com:8041 b0x.toml` to update the files in the running server.
 </details>
 
--------
--------
+### Functions and Variables
 
-#### Functions and Variables
 <details> 
   <summary>FS (File System)</summary>
 
@@ -410,8 +402,6 @@ func main() {
 }
 ```
 </details>
--------
--------
 <details> 
   <summary>Handler</summary>
 
@@ -437,8 +427,6 @@ Serve your embedded files.
 http.ListenAndServe(":8080", myEmbeddedFiles.Handler)
 ```
 </details>
--------
--------
 
 <details> 
   <summary>ReadFile</summary>
@@ -474,8 +462,6 @@ if err != nil {
 log.Println(string(topSecretFile))
 ```
 </details>
--------
--------
 
 <details> 
   <summary>WriteFile</summary>
@@ -516,8 +502,6 @@ if err != nil {
 }
 ```
 </details>
--------
--------
 
 <details> 
   <summary>WalkDirs</summary>
