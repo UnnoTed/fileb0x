@@ -76,7 +76,11 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 MIT
 
 -------
-### How to use it?
+#### Get Started
+
+<details> 
+
+<summary>How to use it?</summary>
 
 ##### 1. Download
 
@@ -106,8 +110,11 @@ or if you wish to generate the embedded files through `go generate` just add and
 ```go
 //go:generate fileb0x YOUR_CONFIG_FILE.yaml
 ```
+
+</details>
 -------
-### What functions and variables fileb0x let me access and what are they for?
+<details> 
+  <summary>What functions and variables fileb0x let me access and what are they for?</summary>
 
 #### HTTP
 ```go
@@ -134,11 +141,194 @@ Serve files through a HTTP FileServer.
 // can be avialable through the port 8080
 http.ListenAndServe(":8080", http.FileServer(myEmbeddedFiles.HTTP))
 ```
+</details>
+-------
+-------
+<details> 
+  <summary>How to use it with `echo`?</summary>
+
+```go
+package main
+
+import (
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/engine/standard"
+	// your embedded files import here ...
+	"github.com/UnnoTed/fileb0x/_example/echo/myEmbeddedFiles"
+)
+
+func main() {
+	e := echo.New()
+
+	// enable any filename to be loaded from in-memory file system
+	e.GET("/*", echo.WrapHandler(myEmbeddedFiles.Handler))
+
+	// http://localhost:1337/public/README.md
+	e.Start(":1337")
+}
+```
+
+##### How to serve a single file through `echo`?
+```go
+package main
+
+import (
+	"github.com/labstack/echo"
+
+	// your embedded files import here ...
+	"github.com/UnnoTed/fileb0x/_example/echo/myEmbeddedFiles"
+)
+
+func main() {
+	e := echo.New()
+
+	// read ufo.html from in-memory file system
+	htmlb, err := myEmbeddedFiles.ReadFile("ufo.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// convert to string
+	html := string(htmlb)
+
+	// serve ufo.html through "/"
+	e.GET("/", func(c echo.Context) error {
+
+		// serve as html
+		return c.HTML(http.StatusOK, html)
+	})
+
+	e.Start(":1337")
+}
+```
+
+</details>
+-------
+-------
+
+<details> 
+  <summary>examples</summary>
+
+[simple example](https://github.com/UnnoTed/fileb0x/tree/master/_example/simple) -
+[main.go](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/main.go)
+
+[echo example](https://github.com/UnnoTed/fileb0x/tree/master/_example/echo) -
+[main.go](https://github.com/UnnoTed/fileb0x/blob/master/_example/echo/main.go)
+
+```go
+package main
+
+import (
+	"log"
+	"net/http"
+
+  // your generaTed package
+	"github.com/UnnoTed/fileb0x/_example/simple/static"
+)
+
+func main() {
+	files, err := static.WalkDirs("", false)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("ALL FILES", files)
+
+  // here we'll read the file from the virtual file system
+	b, err := static.ReadFile("public/README.md")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+  // byte to str
+  s := string(b)
+  s += "#hello"
+
+  // write file back into the virtual file system
+  err := static.WriteFile("public/README.md", []byte(s), 0644)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+
+	log.Println(string(b))
+
+	// true = handler
+	// false = file system
+	as := false
+
+	// try it -> http://localhost:1337/public/secrets.txt
+	if as {
+		// as Handler
+		panic(http.ListenAndServe(":1337", static.Handler))
+	} else {
+		// as File System
+		panic(http.ListenAndServe(":1337", http.FileServer(static.HTTP)))
+	}
+}
+```
+</details>
+-------
+-------
+<details> 
+
+<summary>Update files remotely</summary>
+
+Having to upload an entire binary just to update some files in a b0x and restart a server isn't something that i like to do...
+
+##### How it works?
+By enabling the updater option, the next time that you generate a b0x, it will include a http server, this http server will use a http basic auth and it contains 1 endpoint `/` that accepts 2 methods: `GET, POST`.
+
+The `GET` method responds with a list of file names and sha256 hash of each file.
+The `POST` method is used to upload files, it creates the directory tree of a new file and then creates the file or it updates an existing file from the virtual memory file system... it responds with a `ok` string when the upload is successful.
+  
+##### How to update files remotely?
+
+1. First enable the updater option in your config file:
+```yaml
+##################
+## yaml example ##
+##################
+
+# updater allows you to update a b0x in a running server
+# without having to restart it
+updater:
+  # disabled by default
+  enabled: false
+
+  # empty mode creates a empty b0x file with just the 
+  # server and the filesystem, then you'll have to upload
+  # the files later using the cmd:
+  # fileb0x -update=http://server.com:port b0x.yaml
+  #
+  # it avoids long compile time
+  empty: false
+
+  # amount of uploads at the same time
+  workers: 3
+
+  # to get a username and password from a env variable
+  # leave username and password blank (username: "")
+  # then set your username and password in the env vars 
+  # (no caps) -> fileb0x_username and fileb0x_password
+  #
+  # when using env vars, set it before generating a b0x 
+  # so it can be applied to the updater server.
+  username: "user" # username: ""
+  password: "pass" # password: ""
+  port: 8041
+```
+2. Generate a b0x with the updater option enabled, don't forget to set the username and password for authentication.
+3. When your files update, just run `fileb0x -update=http://yourServer.com:8041 b0x.toml` to update the files in the running server.
+</details>
 
 -------
 -------
 
-#### FS (File System)
+#### Functions and Variables
+<details> 
+  <summary>FS (File System)</summary>
+
 ```go
 var FS webdav.FileSystem
 ```
@@ -219,11 +409,12 @@ func main() {
 	}
 }
 ```
-
+</details>
 -------
 -------
+<details> 
+  <summary>Handler</summary>
 
-#### Handler
 ```go
 var Handler *webdav.Handler
 ```
@@ -245,11 +436,13 @@ Serve your embedded files.
 // and use Handler as a http handler to serve your embedded files
 http.ListenAndServe(":8080", myEmbeddedFiles.Handler)
 ```
-
+</details>
 -------
 -------
 
-#### ReadFile
+<details> 
+  <summary>ReadFile</summary>
+
 ```go
 func ReadFile(filename string) ([]byte, error)
 ```
@@ -280,11 +473,13 @@ if err != nil {
 
 log.Println(string(topSecretFile))
 ```
-
+</details>
 -------
 -------
 
-#### WriteFile
+<details> 
+  <summary>WriteFile</summary>
+
 ```go
 func WriteFile(filename string, data []byte, perm os.FileMode) error
 ```
@@ -320,11 +515,13 @@ if err != nil {
 	log.Fatal(err)
 }
 ```
-
+</details>
 -------
 -------
 
-#### WalkDirs
+<details> 
+  <summary>WalkDirs</summary>
+
 ```go
 func WalkDirs(name string, includeDirsInList bool, files ...string) ([]string, error) {
 ```
@@ -353,175 +550,4 @@ if err != nil {
 log.Println("List of all my files", files)
 ```
 
--------
--------
-
-### examples
-
-[simple example](https://github.com/UnnoTed/fileb0x/tree/master/_example/simple) -
-[main.go](https://github.com/UnnoTed/fileb0x/blob/master/_example/simple/main.go)
-
-[echo example](https://github.com/UnnoTed/fileb0x/tree/master/_example/echo) -
-[main.go](https://github.com/UnnoTed/fileb0x/blob/master/_example/echo/main.go)
-
-```go
-package main
-
-import (
-	"log"
-	"net/http"
-
-  // your generaTed package
-	"github.com/UnnoTed/fileb0x/_example/simple/static"
-)
-
-func main() {
-	files, err := static.WalkDirs("", false)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("ALL FILES", files)
-
-  // here we'll read the file from the virtual file system
-	b, err := static.ReadFile("public/README.md")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-  // byte to str
-  s := string(b)
-  s += "#hello"
-
-  // write file back into the virtual file system
-  err := static.WriteFile("public/README.md", []byte(s), 0644)
-  if err != nil {
-    log.Fatal(err)
-  }
-
-
-	log.Println(string(b))
-
-	// true = handler
-	// false = file system
-	as := false
-
-	// try it -> http://localhost:1337/public/secrets.txt
-	if as {
-		// as Handler
-		panic(http.ListenAndServe(":1337", static.Handler))
-	} else {
-		// as File System
-		panic(http.ListenAndServe(":1337", http.FileServer(static.HTTP)))
-	}
-}
-```
-
--------
--------
-
-### How to use it with `echo`?
-```go
-package main
-
-import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
-	// your embedded files import here ...
-	"github.com/UnnoTed/fileb0x/_example/echo/myEmbeddedFiles"
-)
-
-func main() {
-	e := echo.New()
-
-	// enable any filename to be loaded from in-memory file system
-	e.GET("/*", echo.WrapHandler(myEmbeddedFiles.Handler))
-
-	// http://localhost:1337/public/README.md
-	e.Start(":1337")
-}
-```
-
-##### How to serve a single file through `echo`?
-```go
-package main
-
-import (
-	"github.com/labstack/echo"
-
-	// your embedded files import here ...
-	"github.com/UnnoTed/fileb0x/_example/echo/myEmbeddedFiles"
-)
-
-func main() {
-	e := echo.New()
-
-	// read ufo.html from in-memory file system
-	htmlb, err := myEmbeddedFiles.ReadFile("ufo.html")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// convert to string
-	html := string(htmlb)
-
-	// serve ufo.html through "/"
-	e.GET("/", func(c echo.Context) error {
-
-		// serve as html
-		return c.HTML(http.StatusOK, html)
-	})
-
-	e.Start(":1337")
-}
-```
-
--------
--------
-
-#### Update files remotely
-Having to upload an entire binary just to update some files in a b0x and restart a server isn't something that i like to do...
-
-##### How it works?
-By enabling the updater option, the next time that you generate a b0x, it will include a http server, this http server will use a http basic auth and it contains 1 endpoint `/` that accepts 2 methods: `GET, POST`.
-
-The `GET` method responds with a list of file names and sha256 hash of each file.
-The `POST` method is used to upload files, it creates the directory tree of a new file and then creates the file or it updates an existing file from the virtual memory file system... it responds with a `ok` string when the upload is successful.
-
-##### How to update files remotely?
-1. First enable the updater option in your config file:
-```yaml
-##################
-## yaml example ##
-##################
-
-# updater allows you to update a b0x in a running server
-# without having to restart it
-updater:
-  # disabled by default
-  enabled: false
-
-  # empty mode creates a empty b0x file with just the 
-  # server and the filesystem, then you'll have to upload
-  # the files later using the cmd:
-  # fileb0x -update=http://server.com:port b0x.yaml
-  #
-  # it avoids long compile time
-  empty: false
-
-	# amount of uploads at the same time
-  workers: 3
-
-  # to get a username and password from a env variable
-  # leave username and password blank (username: "")
-  # then set your username and password in the env vars 
-  # (no caps) -> fileb0x_username and fileb0x_password
-	#
-	# when using env vars, set it before generating a b0x 
-	# so it can be applied to the updater server.
-	username: "user" # username: ""
-	password: "pass" # password: ""
-	port: 8041
-```
-2. Generate a b0x with the updater option enabled, don't forget to set the username and password for authentication.
-3. When your files update, just run `fileb0x -update=http://yourServer.com:8041 b0x.toml` to update the files in the running server.
+</details>
