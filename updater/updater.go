@@ -18,6 +18,7 @@ import (
 
 	"github.com/UnnoTed/fileb0x/file"
 	"github.com/vbauerster/mpb"
+	"github.com/vbauerster/mpb/decor"
 )
 
 var p *mpb.Progress
@@ -260,11 +261,16 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 		fr := bytes.NewReader(f.Bytes)
 
 		barText := fmt.Sprintf("%d/%d | %s |", job.current, job.total, f.Path)
-		bar := p.AddBar(fr.Size()).
-			PrependName(barText, len(barText), 0).
-			PrependCounters("%3s / %3s", mpb.UnitBytes, 18, mpb.DwidthSync|mpb.DextraSpace).
-			AppendPercentage(0, mpb.DwidthSync|mpb.DextraSpace).
-			AppendETA(2, mpb.DwidthSync|mpb.DextraSpace)
+		bar := p.AddBar(fr.Size(),
+			mpb.PrependDecorators(
+				decor.Name(barText, len(barText), 0),
+				decor.Counters("%3s / %3s", decor.Unit_KiB, 18, decor.DSyncSpace),
+			),
+			mpb.AppendDecorators(
+				decor.Percentage(0, decor.DSyncSpace),
+				decor.ETA(2, decor.DSyncSpace),
+			),
+		)
 
 		// updates the progressbar
 		pr := &ProgressReader{fr, func(r int64) {
