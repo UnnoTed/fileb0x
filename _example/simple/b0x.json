@@ -16,6 +16,9 @@
   // default: false
   "fmt": false,
 
+  // build tags for the main b0x.go file
+  "tags": "",
+
   // updater allows you to update a b0x in a running server
   // without having to restart it
   "updater": {
@@ -123,7 +126,11 @@
 
       // prefix is the path that will be added to all files' path
       // type: string
-      "prefix": "public/"
+      "prefix": "public/",
+
+      // build tags for this set of files
+      // it will only work if spread mode is enabled
+      "tags": ""
     },
     {
       // everything inside the folder
@@ -146,6 +153,10 @@
       "exclude": [
         "public/assets/data/exclude_me.txt"
       ],
+
+      // build tags for this set of files
+      // it will only work if spread mode is enabled
+      "tags": "",
 
       // replace strings in the file
       // type: array of objects

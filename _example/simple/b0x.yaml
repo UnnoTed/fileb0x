@@ -12,6 +12,9 @@ dest: "./static/"
 # default: false
 fmt: false
 
+# build tags for the main b0x.go file
+tags: ""
+
 # updater allows you to update a b0x in a running server
 # without having to restart it
 updater:
@@ -119,6 +122,10 @@ custom:
     # type: string
     prefix: "public/"
 
+    # build tags for this set of files
+    # it will only work if spread mode is enabled
+    tags: ""
+
   - files: 
     # everything inside the folder
     # type: array of strings
@@ -131,6 +138,10 @@ custom:
     # prefix is the path that will be added to all files' path
     # type: string
     prefix: ""
+
+    # build tags for this set of files
+    # it will only work if spread mode is enabled
+    tags: ""
 
     # if you have difficulty to understand what base and prefix is
     # think about it like this: [prefix] will replace [base]

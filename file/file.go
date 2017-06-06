@@ -8,6 +8,7 @@ type File struct {
 	Data         string
 	Bytes        []byte
 	ReplacedText bool
+	Tags         string
 }
 
 // NewFile creates a new File

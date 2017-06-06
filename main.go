@@ -99,6 +99,7 @@ func main() {
 		Now         string
 		Pkg         string
 		Files       map[string]*file.File
+		Tags        string
 		Spread      bool
 		DirList     []string
 		Compression *compression.Options
@@ -109,6 +110,7 @@ func main() {
 		Now:         time.Now().String(),
 		Pkg:         cfg.Pkg,
 		Files:       files,
+		Tags:        cfg.Tags,
 		Spread:      cfg.Spread,
 		DirList:     dirs.Clean(),
 		Compression: cfg.Compression,
@@ -169,6 +171,7 @@ func main() {
 				Path        string
 				Name        string
 				Dir         [][]string
+				Tags        string
 				Data        string
 				Compression *compression.Options
 			}{
@@ -178,6 +181,7 @@ func main() {
 				Path:        f.Path,
 				Name:        f.Name,
 				Dir:         dirs.List,
+				Tags:        f.Tags,
 				Data:        f.Data,
 				Compression: cfg.Compression,
 			}

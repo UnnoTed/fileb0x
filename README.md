@@ -19,7 +19,7 @@ gzip compression                      | yes                           | yes
 gzip decompression                    | yes (optional: runtime)       | yes (on read)
 gzip compression levels               | yes                           | no
 separated prefix / base for each file | yes                           | no (all files only)
-tags                                  | no                            | yes
+different build tags for each file    | yes                           | no
 exclude / ignore files                | yes (glob)                    | yes (regex)
 spread files                          | yes                           | no (single file only)
 unexported vars/funcs                 | yes (optional)                | no
@@ -70,6 +70,8 @@ Virtual Memory File System has similar functions as a hdd stored files would hav
 - [x] json / yaml / toml support
 
 - [x] optional: Update files remotely
+
+- [x] optional: Build tags for each file
 
 
 ### License
@@ -534,4 +536,71 @@ if err != nil {
 log.Println("List of all my files", files)
 ```
 
+</details>
+
+<details> 
+  <summary>Build Tags</summary>
+
+To use build tags for a b0x package just add the tags to the `tags` property in the main object of your config file
+```yaml
+# default: main
+pkg: static
+
+# destination
+dest: "./static/"
+
+# build tags for the main b0x.go file
+tags: "!linux"
+```
+
+You can also have different build tags for a list of files, you must enable the `spread` property in the main object of your config file, then at the `custom` list, choose the set of files which you want a different build tag 
+```yaml
+# default: main
+pkg: static
+
+# destination
+dest: "./static/"
+
+# build tags for the main b0x.go file
+tags: "windows darwin"
+
+# [spread] means it will make a file to hold all fileb0x data
+# and each file into a separaTed .go file
+#
+# example:
+# theres 2 files in the folder assets, they're: hello.json and world.txt
+# when spread is activaTed, fileb0x will make a file: 
+# b0x.go or [output]'s data, assets_hello.json.go and assets_world.txt.go
+#
+#
+# type: bool
+# default: false
+spread: true
+
+# type: array of objects
+custom:
+  # type: array of strings
+  - files: 
+    - "start_space_ship.exe"
+
+    # build tags for this set of files
+    # it will only work if spread mode is enabled
+    tags: "windows"
+
+	# type: array of strings
+  - files: 
+    - "ufo.dmg"
+
+    # build tags for this set of files
+    # it will only work if spread mode is enabled
+    tags: "darwin"
+```
+
+the config above will make:
+```yaml
+ab0x.go                         # // +build windows darwin
+
+b0xfile_ufo.exe.go              # // +build windows
+b0xfile_start_space_ship.bat.go # // +build darwin
+```
 </details>

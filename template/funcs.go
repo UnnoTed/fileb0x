@@ -56,6 +56,7 @@ var r = regexp.MustCompile(`[^a-zA-Z0-9]`)
 
 var funcsTemplate = template.FuncMap{
 	"exported":         exported,
+	"buildTags":        buildTags,
 	"exportedTitle":    exportedTitle,
 	"buildSafeVarName": buildSafeVarName,
 }
@@ -118,4 +119,12 @@ func buildSafeVarName(path string) string {
 	safeNameBlacklist[path] = name
 	blacklist[name]++
 	return name
+}
+
+func buildTags(tags string) string {
+	if tags != "" {
+		tags = "// +build " + tags + "\n"
+	}
+
+	return tags
 }

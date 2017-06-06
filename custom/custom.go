@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -32,6 +33,7 @@ type Custom struct {
 	Files  []string
 	Base   string
 	Prefix string
+	Tags   string
 
 	Exclude []string
 	Replace []Replacer
@@ -75,6 +77,7 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 		customFile = utils.FixPath(customFile)
 		walkErr := filepath.Walk(customFile, func(fpath string, info os.FileInfo, err error) error {
 			if config.Updater.Empty && !config.Updater.IsUpdating {
+				log.Println("empty mode")
 				return nil
 			}
 
@@ -184,6 +187,11 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 			f.Data = buf.String() + `")`
 			f.Name = info.Name()
 			f.Path = fixedPath
+			f.Tags = c.Tags
+
+			if _, ok := to[fixedPath]; ok {
+				f.Tags = to[fixedPath].Tags
+			}
 
 			// insert dir to dirlist so it can be created on b0x's init()
 			dirList.Insert(path.Dir(fixedPath))

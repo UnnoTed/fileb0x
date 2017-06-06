@@ -16,6 +16,7 @@ type Config struct {
 	Pkg         string
 	Fmt         bool // gofmt
 	Compression *compression.Options
+	Tags        string
 
 	Output string
 
