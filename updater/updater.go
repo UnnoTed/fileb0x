@@ -222,7 +222,9 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 	}
 
 	// progressbar pool
-	p = mpb.New().SetWidth(100)
+	p = mpb.New(
+		mpb.WithWidth(100),
+	)
 
 	total := len(up.ToUpdate)
 
@@ -330,7 +332,7 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 			log.Fatal(body.String())
 		}
 
-		bar.Completed()
+		bar.Complete()
 		done <- true
 	}
 }
