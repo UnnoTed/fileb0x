@@ -123,11 +123,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// create dest folder when it doesn't exists
-	if !utils.Exists(cfg.Dest) {
-		if err := os.MkdirAll(cfg.Dest, 0770); err != nil {
-			log.Fatal(err)
-		}
+	if err := os.MkdirAll(cfg.Dest, 0770); err != nil {
+		log.Fatal(err)
 	}
 
 	// gofmt
