@@ -123,12 +123,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// create dest folder when it doesn't exists
-	if !utils.Exists(cfg.Dest) {
-		err = os.MkdirAll(cfg.Dest, 0777)
-		if err != nil {
-			log.Fatal(err)
-		}
+	if err := os.MkdirAll(cfg.Dest, 0770); err != nil {
+		log.Fatal(err)
 	}
 
 	// gofmt
@@ -140,7 +136,7 @@ func main() {
 	}
 
 	// write final execuTed template into the destination file
-	err = ioutil.WriteFile(cfg.Dest+cfg.Output, tmpl, 0777)
+	err = ioutil.WriteFile(cfg.Dest+cfg.Output, tmpl, 0640)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -199,8 +195,7 @@ func main() {
 			}
 
 			// write final execuTed template into the destination file
-			err = ioutil.WriteFile(cfg.Dest+customName, tmpl, 0777)
-			if err != nil {
+			if err := ioutil.WriteFile(cfg.Dest+customName, tmpl, 0640); err != nil {
 				log.Fatal(err)
 			}
 		}

@@ -11,6 +11,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v2"
+	"fmt"
 )
 
 // File holds config file info
@@ -74,19 +75,17 @@ func (f *File) Parse() (*Config, error) {
 	// remove comments
 	f.RemoveJSONComments()
 
-	var to *Config
-	var err error
-
-	// parse file
-	if f.Mode == "json" {
-		err = json.Unmarshal(f.Data, &to)
-	} else if f.Mode == "yaml" || f.Mode == "yml" {
-		err = yaml.Unmarshal(f.Data, &to)
-	} else if f.Mode == "toml" {
-		err = toml.Unmarshal(f.Data, &to)
+	to := &Config{}
+	switch f.Mode {
+	case "json":
+		return to, json.Unmarshal(f.Data, to)
+	case "yaml", "yml":
+		return to, yaml.Unmarshal(f.Data, to)
+	case "toml":
+		return to, toml.Unmarshal(f.Data, to)
+	default:
+		return nil, fmt.Errorf("unknown mode '%s'", f.Mode)
 	}
-
-	return to, err
 }
 
 // Load the json/yaml file that was specified from args

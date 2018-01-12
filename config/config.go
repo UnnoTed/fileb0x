@@ -79,5 +79,13 @@ func (cfg *Config) Defaults() error {
 		}
 	}
 
+	if cfg.Compression == nil {
+		cfg.Compression = &compression.Options{
+			Compress: false,
+			Method: "DefaultCompression",
+			Keep: false,
+		}
+	}
+
 	return nil
 }
