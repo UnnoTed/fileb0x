@@ -204,8 +204,12 @@ func {{exportedTitle "WalkDirs"}}(name string, includeDirsInList bool, files ...
 	}
 
 	fileInfos, err := f.Readdir(0)
-	f.Close()
 	if err != nil {
+    return nil, err
+  }
+  
+  err = f.Close()
+  if err != nil {
 		return nil, err
 	}
 
