@@ -43,6 +43,7 @@ func TestTemplate(t *testing.T) {
 		Spread      bool
 		DirList     []string
 		Compression *compression.Options
+		Tags        string
 		Debug       bool
 		Updater     updater.Config
 	}{
@@ -88,6 +89,7 @@ func TestTemplate(t *testing.T) {
 		Path        string
 		Name        string
 		Dir         [][]string
+		Tags        string
 		Data        string
 		Compression *compression.Options
 		Updater     updater.Config

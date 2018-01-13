@@ -28,6 +28,9 @@ func TestConfigDefaults(t *testing.T) {
 		err = cfg.Defaults()
 		assert.NoError(t, err)
 
+		err = expecTedList[i].Defaults()
+		assert.NoError(t, err)
+
 		eq := reflect.DeepEqual(cfg, expecTedList[i])
 		assert.True(t, eq, "NOT EQUAL:", cfg, expecTedList[i])
 	}
