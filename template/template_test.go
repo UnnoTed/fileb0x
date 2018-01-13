@@ -45,6 +45,7 @@ func TestTemplate(t *testing.T) {
 		Compression *compression.Options
 		Tags        string
 		Debug       bool
+		Remap       string
 		Updater     updater.Config
 	}{
 		Pkg:         "main",
@@ -90,6 +91,7 @@ func TestTemplate(t *testing.T) {
 		Name        string
 		Dir         [][]string
 		Tags        string
+		Remap       string
 		Data        string
 		Compression *compression.Options
 		Updater     updater.Config

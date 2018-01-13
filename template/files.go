@@ -7,21 +7,23 @@ package {{.Pkg}}
 
 import (
   "bytes"
-  {{if not .Spread}}{{if $Compression.Compress}}{{if not $Compression.Keep}}"compress/gzip"{{end}}{{end}}{{end}}
+  {{if not .Spread}}{{if and $Compression.Compress (not .Debug)}}{{if not $Compression.Keep}}"compress/gzip"{{end}}{{end}}{{end}}
   "io"
   "net/http"
   "os"
   "path"
-  
+{{if or .Updater.Enabled .Debug}}
+  "strings"
+{{end}}
+
   "golang.org/x/net/webdav"
   "golang.org/x/net/context"
-  
+
 {{if .Updater.Enabled}}
   "crypto/sha256"
 	"encoding/hex"
   "log"
   "path/filepath"
-  "strings"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -143,8 +145,25 @@ var err error
 {{end}}
 }
 
+{{if .Debug}}
+var remap = map[string]map[string]string{
+  {{.Remap}}
+}
+{{end}}
+
 // Open a file
 func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
+{{if .Debug}}
+  path = strings.TrimPrefix(path, "/")
+
+  for current, f := range remap {
+    if path == current {
+      path = f["base"] + strings.TrimPrefix(path, f["prefix"])
+      break
+    }
+  }
+{{end}}
+
   f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile({{if not .Debug}}{{exported "CTX"}}, {{end}}path, os.O_RDONLY, 0644)
   if err != nil {
     return nil, err

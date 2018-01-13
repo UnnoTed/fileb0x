@@ -91,6 +91,12 @@ func main() {
 		}
 	}
 
+	// builds remap's list
+	var remap string
+	for _, f := range files {
+		remap += f.GetRemap()
+	}
+
 	// create files template and exec it
 	t := new(template.Template)
 	t.Set("files")
@@ -101,6 +107,7 @@ func main() {
 		Files       map[string]*file.File
 		Tags        string
 		Spread      bool
+		Remap       string
 		DirList     []string
 		Compression *compression.Options
 		Debug       bool
@@ -111,6 +118,7 @@ func main() {
 		Pkg:         cfg.Pkg,
 		Files:       files,
 		Tags:        cfg.Tags,
+		Remap:       remap,
 		Spread:      cfg.Spread,
 		DirList:     dirs.Clean(),
 		Compression: cfg.Compression,
