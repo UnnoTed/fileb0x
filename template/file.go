@@ -12,7 +12,6 @@ import (
   "io"
   {{end}}
   {{end}}
-  "log"
   "os"
 )
 
@@ -25,38 +24,38 @@ func init() {
   rb := bytes.NewReader({{exportedTitle "File"}}{{buildSafeVarName .Path}})
   r, err := gzip.NewReader(rb)
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
 
   err = r.Close()
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
   {{end}}
 
   f, err := {{exported "FS"}}.OpenFile({{exported "CTX"}}, "{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
 
   {{if .Compression.Compress}}
   {{if not .Compression.Keep}}
   _, err = io.Copy(f, r)
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
   {{else}}
   _, err = f.Write({{exportedTitle "File"}}{{buildSafeVarName .Path}})
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
 
   err = f.Close()
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
 }
 

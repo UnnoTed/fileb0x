@@ -9,17 +9,17 @@ import (
   "bytes"
   {{if not .Spread}}{{if $Compression.Compress}}{{if not $Compression.Keep}}"compress/gzip"{{end}}{{end}}{{end}}
   "io"
-  "log"
   "net/http"
   "os"
   "path"
-
+  
   "golang.org/x/net/webdav"
   "golang.org/x/net/context"
-
+  
 {{if .Updater.Enabled}}
   "crypto/sha256"
 	"encoding/hex"
+  "log"
   "path/filepath"
   "strings"
 
@@ -58,7 +58,7 @@ var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 
 func init() {
   if {{exported "CTX"}}.Err() != nil {
-		log.Fatal({{exported "CTX"}}.Err())
+		panic({{exported "CTX"}}.Err())
 	}
 
 {{if not .Debug}}
@@ -70,7 +70,7 @@ var err error
   {{if and (ne $dir "./") (ne $dir "/") (ne $dir ".") (ne $dir "")}}
   err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, "{{$dir}}", 0777)
   if err != nil && err != os.ErrExist {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
 {{end}}
@@ -94,38 +94,38 @@ var err error
   rb = bytes.NewReader({{exportedTitle "File"}}{{buildSafeVarName .Path}})
   r, err = gzip.NewReader(rb)
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
 
   err = r.Close()
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
   {{end}}
 
   f, err = {{exported "FS"}}.OpenFile({{exported "CTX"}}, "{{.Path}}", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
 
   {{if $Compression.Compress}}
   {{if not $Compression.Keep}}
   _, err = io.Copy(f, r)
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
   {{else}}
   _, err = f.Write({{exportedTitle "File"}}{{buildSafeVarName .Path}})
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
 
   err = f.Close()
   if err != nil {
-    log.Fatal(err)
+    panic(err)
   }
   {{end}}
 {{end}}
