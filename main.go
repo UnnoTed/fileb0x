@@ -53,24 +53,24 @@ func main() {
 	f := new(config.File)
 	err = f.FromArg(true)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	// load b0x file's config
 	cfg, err = f.Load()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	err = cfg.Defaults()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	cfgPath = f.FilePath
 
 	if err := cfg.Updater.CheckInfo(); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	cfg.Updater.IsUpdating = update
@@ -87,7 +87,7 @@ func main() {
 	for _, c := range cfg.Custom {
 		err = c.Parse(&files, &dirs, sharedConfig)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 	}
 
@@ -120,25 +120,25 @@ func main() {
 
 	tmpl, err := t.Exec()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	if err := os.MkdirAll(cfg.Dest, 0770); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	// gofmt
 	if cfg.Fmt {
 		tmpl, err = format.Source(tmpl)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 	}
 
 	// write final execuTed template into the destination file
 	err = ioutil.WriteFile(cfg.Dest+cfg.Output, tmpl, 0640)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	// write spread files
@@ -183,20 +183,20 @@ func main() {
 			}
 			tmpl, err := t.Exec()
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 
 			// gofmt
 			if cfg.Fmt {
 				tmpl, err = format.Source(tmpl)
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
 			}
 
 			// write final execuTed template into the destination file
 			if err := ioutil.WriteFile(cfg.Dest+customName, tmpl, 0640); err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 		}
 	}
@@ -208,7 +208,7 @@ func main() {
 
 	if update {
 		if !cfg.Updater.Enabled {
-			log.Fatal("fileb0x: The updater is disabled, enable it in your config file!")
+			panic("fileb0x: The updater is disabled, enable it in your config file!")
 		}
 
 		// includes port when not present
