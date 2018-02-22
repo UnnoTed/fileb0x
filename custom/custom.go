@@ -190,6 +190,7 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 			f.Tags = c.Tags
 			f.Base = c.Base
 			f.Prefix = c.Prefix
+			f.Modified = info.ModTime().String()
 
 			if _, ok := to[fixedPath]; ok {
 				f.Tags = to[fixedPath].Tags

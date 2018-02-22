@@ -1,8 +1,6 @@
 package config
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/UnnoTed/fileb0x/compression"
@@ -27,6 +25,7 @@ type Config struct {
 	Clean      bool
 	Debug      bool
 	Updater    updater.Config
+	Lcf        bool
 }
 
 // Defaults set the default value for some variables
@@ -62,28 +61,11 @@ func (cfg *Config) Defaults() error {
 		cfg.Pkg = "main"
 	}
 
-	// remove b0xfiles when [clean] is true
-	// it doesn't clean destination's folders
-	if cfg.Clean {
-		matches, err := filepath.Glob(cfg.Dest + "b0xfile_*.go")
-		if err != nil {
-			return err
-		}
-
-		// remove matched file
-		for _, f := range matches {
-			err = os.Remove(f)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	if cfg.Compression == nil {
 		cfg.Compression = &compression.Options{
 			Compress: false,
-			Method: "DefaultCompression",
-			Keep: false,
+			Method:   "DefaultCompression",
+			Keep:     false,
 		}
 	}
 

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"flag"
 	"go/format"
 	"io/ioutil"
@@ -9,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -21,6 +24,7 @@ import (
 	"github.com/UnnoTed/fileb0x/template"
 	"github.com/UnnoTed/fileb0x/updater"
 	"github.com/UnnoTed/fileb0x/utils"
+	dry "github.com/ungerik/go-dry"
 
 	// just to install automatically
 	_ "github.com/labstack/echo"
@@ -36,6 +40,12 @@ var (
 
 	fUpdate   string
 	startTime = time.Now()
+
+	hashStart = []byte("// modification hash(")
+	hashEnd   = []byte(")")
+
+	modTimeStart = []byte("// modified(")
+	modTimeEnd   = []byte(")")
 )
 
 func main() {
@@ -92,64 +102,92 @@ func main() {
 	}
 
 	// builds remap's list
-	var remap string
+	var (
+		remap    string
+		modHash  string
+		mods     []string
+		lastHash string
+	)
+
 	for _, f := range files {
 		remap += f.GetRemap()
+		mods = append(mods, f.Modified)
 	}
 
-	// create files template and exec it
-	t := new(template.Template)
-	t.Set("files")
-	t.Variables = struct {
-		ConfigFile  string
-		Now         string
-		Pkg         string
-		Files       map[string]*file.File
-		Tags        string
-		Spread      bool
-		Remap       string
-		DirList     []string
-		Compression *compression.Options
-		Debug       bool
-		Updater     updater.Config
-	}{
-		ConfigFile:  filepath.Base(cfgPath),
-		Now:         time.Now().String(),
-		Pkg:         cfg.Pkg,
-		Files:       files,
-		Tags:        cfg.Tags,
-		Remap:       remap,
-		Spread:      cfg.Spread,
-		DirList:     dirs.Clean(),
-		Compression: cfg.Compression,
-		Debug:       cfg.Debug,
-		Updater:     cfg.Updater,
-	}
+	// sorts modification time list and create a md5 of it
+	sort.Strings(mods)
+	modHash = dry.StringMD5Hex(strings.Join(mods, "")) + "." + dry.StringMD5Hex(string(f.Data))
+	exists := dry.FileExists(cfg.Dest + cfg.Output)
 
-	tmpl, err := t.Exec()
-	if err != nil {
-		panic(err)
-	}
-
-	if err := os.MkdirAll(cfg.Dest, 0770); err != nil {
-		panic(err)
-	}
-
-	// gofmt
-	if cfg.Fmt {
-		tmpl, err = format.Source(tmpl)
+	if exists {
+		// gets the modification hash from the main b0x file
+		lastHash, err = getModification(cfg.Dest+cfg.Output, hashStart, hashEnd)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	// write final execuTed template into the destination file
-	err = ioutil.WriteFile(cfg.Dest+cfg.Output, tmpl, 0640)
-	if err != nil {
-		panic(err)
+	if !exists || lastHash != modHash {
+		// create files template and exec it
+		t := new(template.Template)
+		t.Set("files")
+		t.Variables = struct {
+			ConfigFile       string
+			Now              string
+			Pkg              string
+			Files            map[string]*file.File
+			Tags             string
+			Spread           bool
+			Remap            string
+			DirList          []string
+			Compression      *compression.Options
+			Debug            bool
+			Updater          updater.Config
+			ModificationHash string
+		}{
+			ConfigFile:       filepath.Base(cfgPath),
+			Now:              time.Now().String(),
+			Pkg:              cfg.Pkg,
+			Files:            files,
+			Tags:             cfg.Tags,
+			Remap:            remap,
+			Spread:           cfg.Spread,
+			DirList:          dirs.Clean(),
+			Compression:      cfg.Compression,
+			Debug:            cfg.Debug,
+			Updater:          cfg.Updater,
+			ModificationHash: modHash,
+		}
+
+		tmpl, err := t.Exec()
+		if err != nil {
+			panic(err)
+		}
+
+		if err := os.MkdirAll(cfg.Dest, 0770); err != nil {
+			panic(err)
+		}
+
+		// gofmt
+		if cfg.Fmt {
+			tmpl, err = format.Source(tmpl)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		// write final execuTed template into the destination file
+		err = ioutil.WriteFile(cfg.Dest+cfg.Output, tmpl, 0640)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// write spread files
+	var (
+		finalList   []string
+		changedList []string
+	)
 	if cfg.Spread {
 		a := strings.Split(path.Dir(cfg.Dest), "/")
 		dirName := a[len(a)-1:][0]
@@ -164,55 +202,113 @@ func main() {
 
 			// transform / to _ and some other chars...
 			customName := "b0xfile_" + utils.FixName(f.Path) + ".go"
+			finalList = append(finalList, customName)
 
-			// creates file template and exec it
-			t := new(template.Template)
-			t.Set("file")
-			t.Variables = struct {
-				ConfigFile  string
-				Now         string
-				Pkg         string
-				Path        string
-				Name        string
-				Dir         [][]string
-				Tags        string
-				Data        string
-				Compression *compression.Options
-			}{
-				ConfigFile:  filepath.Base(cfgPath),
-				Now:         time.Now().String(),
-				Pkg:         cfg.Pkg,
-				Path:        f.Path,
-				Name:        f.Name,
-				Dir:         dirs.List,
-				Tags:        f.Tags,
-				Data:        f.Data,
-				Compression: cfg.Compression,
-			}
-			tmpl, err := t.Exec()
-			if err != nil {
-				panic(err)
-			}
-
-			// gofmt
-			if cfg.Fmt {
-				tmpl, err = format.Source(tmpl)
+			exists := dry.FileExists(cfg.Dest + customName)
+			var mth string
+			if exists {
+				mth, err = getModification(cfg.Dest+customName, modTimeStart, modTimeEnd)
 				if err != nil {
 					panic(err)
 				}
 			}
 
-			// write final execuTed template into the destination file
-			if err := ioutil.WriteFile(cfg.Dest+customName, tmpl, 0640); err != nil {
-				panic(err)
+			changed := mth != f.Modified
+			if changed {
+				changedList = append(changedList, f.OriginalPath)
+			}
+
+			if !exists || changed {
+				// creates file template and exec it
+				t := new(template.Template)
+				t.Set("file")
+				t.Variables = struct {
+					ConfigFile   string
+					Now          string
+					Pkg          string
+					Path         string
+					Name         string
+					Dir          [][]string
+					Tags         string
+					Data         string
+					Compression  *compression.Options
+					Modified     string
+					OriginalPath string
+				}{
+					ConfigFile:   filepath.Base(cfgPath),
+					Now:          time.Now().String(),
+					Pkg:          cfg.Pkg,
+					Path:         f.Path,
+					Name:         f.Name,
+					Dir:          dirs.List,
+					Tags:         f.Tags,
+					Data:         f.Data,
+					Compression:  cfg.Compression,
+					Modified:     f.Modified,
+					OriginalPath: f.OriginalPath,
+				}
+				tmpl, err := t.Exec()
+				if err != nil {
+					panic(err)
+				}
+
+				// gofmt
+				if cfg.Fmt {
+					tmpl, err = format.Source(tmpl)
+					if err != nil {
+						panic(err)
+					}
+				}
+
+				// write final execuTed template into the destination file
+				if err := ioutil.WriteFile(cfg.Dest+customName, tmpl, 0640); err != nil {
+					panic(err)
+				}
 			}
 		}
 	}
 
-	// success
-	log.Printf("fileb0x: took [%dms] to write [%s] from config file [%s] at [%s]",
-		time.Since(startTime).Nanoseconds()/1e6, cfg.Dest+cfg.Output,
-		filepath.Base(cfgPath), time.Now().String())
+	// remove b0xfiles when [clean] is true
+	// it doesn't clean destination's folders
+	if cfg.Clean {
+		matches, err := filepath.Glob(cfg.Dest + "b0xfile_*.go")
+		if err != nil {
+			panic(err)
+		}
+
+		// remove matched file if they aren't in the finalList
+		// which contains the list of all files written by the
+		// spread option
+		for _, f := range matches {
+			var found bool
+			for _, name := range finalList {
+				if strings.HasSuffix(f, name) {
+					found = true
+				}
+			}
+
+			if !found {
+				err = os.Remove(f)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
+
+	// main b0x
+	if lastHash != modHash {
+		log.Printf("fileb0x: took [%dms] to write [%s] from config file [%s] at [%s]",
+			time.Since(startTime).Nanoseconds()/1e6, cfg.Dest+cfg.Output,
+			filepath.Base(cfgPath), time.Now().String())
+	} else {
+		log.Printf("fileb0x: no changes detected")
+	}
+
+	// log changed files
+	if cfg.Lcf && len(changedList) > 0 {
+		log.Printf("fileb0x: list of changed files [%s]", strings.Join(changedList, " | "))
+	}
 
 	if update {
 		if !cfg.Updater.Enabled {
@@ -243,4 +339,28 @@ func main() {
 			panic(err)
 		}
 	}
+}
+
+func getModification(path string, start []byte, end []byte) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		if bytes.HasPrefix(scanner.Bytes(), start) && bytes.HasSuffix(scanner.Bytes(), end) {
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	hash := bytes.TrimPrefix(scanner.Bytes(), start)
+	hash = bytes.TrimSuffix(hash, end)
+
+	return string(hash), nil
 }

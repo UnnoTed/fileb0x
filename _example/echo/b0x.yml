@@ -71,6 +71,9 @@ unexporTed: false
 # default: false
 spread: true
 
+# [lcf] log changed files when spread is active
+lcf: true
+
 # type: array of objects
 custom:
 

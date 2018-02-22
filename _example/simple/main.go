@@ -1,4 +1,4 @@
-//go:generate fileb0x b0x.toml
+//go:generate fileb0x b0x.yaml
 package main
 
 import (

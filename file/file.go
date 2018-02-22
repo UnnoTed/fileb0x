@@ -11,6 +11,7 @@ type File struct {
 	Tags         string
 	Base         string
 	Prefix       string
+	Modified     string
 }
 
 // NewFile creates a new File

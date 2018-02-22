@@ -36,23 +36,25 @@ func TestTemplate(t *testing.T) {
 	defaultCompression := compression.NewGzip()
 
 	tp.Variables = struct {
-		ConfigFile  string
-		Now         string
-		Pkg         string
-		Files       map[string]*file.File
-		Spread      bool
-		DirList     []string
-		Compression *compression.Options
-		Tags        string
-		Debug       bool
-		Remap       string
-		Updater     updater.Config
+		ConfigFile       string
+		Now              string
+		Pkg              string
+		Files            map[string]*file.File
+		Spread           bool
+		DirList          []string
+		Compression      *compression.Options
+		Tags             string
+		Debug            bool
+		Remap            string
+		Updater          updater.Config
+		ModificationHash string
 	}{
-		Pkg:         "main",
-		Files:       files,
-		Spread:      false,
-		DirList:     dirs.Clean(),
-		Compression: defaultCompression.Options,
+		Pkg:              "main",
+		Files:            files,
+		Spread:           false,
+		DirList:          dirs.Clean(),
+		Compression:      defaultCompression.Options,
+		ModificationHash: "asdasdasd",
 	}
 
 	tp.template = "wrong {{.Err pudding"
@@ -84,24 +86,28 @@ func TestTemplate(t *testing.T) {
 	defaultCompression = compression.NewGzip()
 
 	tp.Variables = struct {
-		ConfigFile  string
-		Now         string
-		Pkg         string
-		Path        string
-		Name        string
-		Dir         [][]string
-		Tags        string
-		Remap       string
-		Data        string
-		Compression *compression.Options
-		Updater     updater.Config
+		ConfigFile   string
+		Now          string
+		Pkg          string
+		Path         string
+		Name         string
+		Dir          [][]string
+		Tags         string
+		Remap        string
+		Data         string
+		Compression  *compression.Options
+		Updater      updater.Config
+		Modified     string
+		OriginalPath string
 	}{
-		Pkg:         "main",
-		Path:        files["test_file.txt"].Path,
-		Name:        files["test_file.txt"].Name,
-		Dir:         dirs.List,
-		Data:        files["test_file.txt"].Data,
-		Compression: defaultCompression.Options,
+		Pkg:          "main",
+		Path:         files["test_file.txt"].Path,
+		Name:         files["test_file.txt"].Name,
+		Dir:          dirs.List,
+		Data:         files["test_file.txt"].Data,
+		Compression:  defaultCompression.Options,
+		Modified:     "11901",
+		OriginalPath: "",
 	}
 
 	tmpl, err = tp.Exec()
