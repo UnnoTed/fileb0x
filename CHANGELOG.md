@@ -6,6 +6,10 @@ To update simply run:
 go get -u github.com/UnnoTed/fileb0x
 ```
 
+## 2018-03-14
+### Removed
+- [go-dry](https://github.com/ungerik/go-dry) dependency.
+
 ## 2018-02-22
 ### Added
 - Avoid rewriting the main b0x file by checking a MD5 hash of the (file's modification time + cfg).

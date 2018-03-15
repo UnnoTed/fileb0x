@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/md5"
 	"flag"
+	"fmt"
 	"go/format"
 	"io/ioutil"
 	"log"
@@ -24,7 +26,6 @@ import (
 	"github.com/UnnoTed/fileb0x/template"
 	"github.com/UnnoTed/fileb0x/updater"
 	"github.com/UnnoTed/fileb0x/utils"
-	dry "github.com/ungerik/go-dry"
 
 	// just to install automatically
 	_ "github.com/labstack/echo"
@@ -116,8 +117,8 @@ func main() {
 
 	// sorts modification time list and create a md5 of it
 	sort.Strings(mods)
-	modHash = dry.StringMD5Hex(strings.Join(mods, "")) + "." + dry.StringMD5Hex(string(f.Data))
-	exists := dry.FileExists(cfg.Dest + cfg.Output)
+	modHash = stringMD5Hex(strings.Join(mods, "")) + "." + stringMD5Hex(string(f.Data))
+	exists := fileExists(cfg.Dest + cfg.Output)
 
 	if exists {
 		// gets the modification hash from the main b0x file
@@ -204,7 +205,7 @@ func main() {
 			customName := "b0xfile_" + utils.FixName(f.Path) + ".go"
 			finalList = append(finalList, customName)
 
-			exists := dry.FileExists(cfg.Dest + customName)
+			exists := fileExists(cfg.Dest + customName)
 			var mth string
 			if exists {
 				mth, err = getModification(cfg.Dest+customName, modTimeStart, modTimeEnd)
@@ -363,4 +364,15 @@ func getModification(path string, start []byte, end []byte) (string, error) {
 	hash = bytes.TrimSuffix(hash, end)
 
 	return string(hash), nil
+}
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil
+}
+
+func stringMD5Hex(data string) string {
+	hash := md5.New()
+	hash.Write([]byte(data))
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }
