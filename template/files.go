@@ -65,7 +65,7 @@ func init() {
 	}
 
 {{if not .Debug}}
-{{if not .Updater.Empty}}
+{{if (and (not .Updater.Empty) (not .Spread))}}
 var err error
 {{end}}
 
