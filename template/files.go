@@ -64,8 +64,9 @@ func init() {
 		panic({{exported "CTX"}}.Err())
 	}
 
+{{ $length := len .DirList }}
 {{if not .Debug}}
-{{if (and (not .Updater.Empty) (not .Spread))}}
+{{if and (not .Updater.Empty) (not .Spread) (gt $length 0)}}
 var err error
 {{end}}
 
