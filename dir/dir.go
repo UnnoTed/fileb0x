@@ -58,7 +58,7 @@ func (d *Dir) Clean() []string {
 
 	for _, dirs := range d.List {
 		for _, dir := range dirs {
-			if dir == "./" && dir == "/" && dir == "." && dir == "" {
+			if dir == "./" || dir == "/" || dir == "." || dir == "" {
 				continue
 			}
 

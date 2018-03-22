@@ -66,7 +66,7 @@ func init() {
 
 {{ $length := len .DirList }}
 {{if not .Debug}}
-{{if and (not .Updater.Empty) (not .Spread) (gt $length 0)}}
+{{if and (not .Updater.Empty) (gt $length 0)}}
 var err error
 {{end}}
 
