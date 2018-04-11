@@ -65,9 +65,11 @@ func init() {
 	}
 
 {{ $length := len .DirList }}
+{{ $fLength := len .Files }}
+{{ $noDirsButFiles := (and (not .Spread) (eq $length 0) (gt $fLength 0)) }}
 {{if not .Debug}}
-{{if and (not .Updater.Empty) (gt $length 0)}}
-var err error
+{{if and (not .Updater.Empty) (or (gt $length 0) $noDirsButFiles )}}
+  var err error
 {{end}}
 
 {{range $index, $dir := .DirList}}
