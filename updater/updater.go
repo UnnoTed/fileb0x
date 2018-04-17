@@ -189,20 +189,6 @@ func (up *Updater) EqualHashes(files map[string]*file.File) bool {
 	return !update
 }
 
-// ProgressReader implements a io.Reader with a Read
-// function that lets a callback report how much
-// of the file was read
-type ProgressReader struct {
-	io.Reader
-	Reporter func(r int64)
-}
-
-func (pr *ProgressReader) Read(p []byte) (n int, err error) {
-	n, err = pr.Reader.Read(p)
-	pr.Reporter(int64(n))
-	return
-}
-
 type job struct {
 	current int
 	files   *file.File
@@ -222,13 +208,9 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 	}
 
 	// progressbar pool
-	p = mpb.New(
-		mpb.WithWidth(100),
-	)
+	p = mpb.New(mpb.WithWidth(100))
 
 	total := len(up.ToUpdate)
-
-	defer p.Stop()
 	jobs := make(chan *job, total)
 	done := make(chan bool, total)
 
@@ -252,6 +234,8 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 	for i := 0; i < total; i++ {
 		<-done
 	}
+
+	p.Wait()
 	return nil
 }
 
@@ -262,33 +246,31 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 
 		fr := bytes.NewReader(f.Bytes)
 
-		barText := fmt.Sprintf("%d/%d | %s |", job.current, job.total, f.Path)
+		jobText := fmt.Sprintf("%d/%d | ", job.current, job.total)
+		nameText := fmt.Sprintf("%s | ", f.Path)
 		bar := p.AddBar(fr.Size(),
 			mpb.PrependDecorators(
-				decor.Name(barText, len(barText), 0),
-				decor.Counters("%3s / %3s", decor.Unit_KiB, 18, decor.DSyncSpace),
+				decor.StaticName(jobText, 0, 0),
+				decor.StaticName(nameText, 0, decor.DSyncSpace),
+				decor.CountersKibiByte("%6.1f / %6.1f", 18, decor.DSyncSpace),
 			),
-			mpb.AppendDecorators(
-				decor.Percentage(0, decor.DSyncSpace),
-				decor.ETA(2, decor.DSyncSpace),
-			),
+			mpb.AppendDecorators(decor.ETA(5, decor.DwidthSync)),
 		)
 
-		// updates the progressbar
-		pr := &ProgressReader{fr, func(r int64) {
-			bar.Incr(int(r))
-		}}
+		p.UpdateBarPriority(bar, job.current)
 
 		r, w := io.Pipe()
 		writer := multipart.NewWriter(w)
 
 		// copy the file into the form
-		go func(pr *ProgressReader) {
+		go func(fr io.Reader) {
 			defer w.Close()
 			part, err := writer.CreateFormFile("file", f.Path)
 			if err != nil {
 				log.Fatal(err)
 			}
+
+			pr := bar.ProxyReader(fr)
 
 			_, err = io.Copy(part, pr)
 			if err != nil {
@@ -299,7 +281,7 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 			if err != nil {
 				log.Fatal(err)
 			}
-		}(pr)
+		}(fr)
 
 		// create a post request with basic auth
 		// and the file included in a form
