@@ -6,6 +6,12 @@ To update simply run:
 go get -u github.com/UnnoTed/fileb0x
 ```
 
+## 2018-04-17
+### Changed
+- Improved file processing's speed
+- Improved walk speed with [godirwalk](https://github.com/karrick/godirwalk)
+- Fixed updater's progressbar
+
 ## 2018-03-17
 ### Added
 - Added condition to files' template to avoid creating error variable when not required.

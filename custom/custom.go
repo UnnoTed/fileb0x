@@ -1,15 +1,12 @@
 package custom
 
 import (
-	"bytes"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/UnnoTed/fileb0x/compression"
@@ -18,7 +15,10 @@ import (
 	"github.com/UnnoTed/fileb0x/updater"
 	"github.com/UnnoTed/fileb0x/utils"
 	"github.com/bmatcuk/doublestar"
+	"github.com/karrick/godirwalk"
 )
+
+const hextable = "0123456789abcdef"
 
 // SharedConfig holds needed data from config package
 // without causing import cycle
@@ -39,7 +39,12 @@ type Custom struct {
 	Replace []Replacer
 }
 
-var xx = []byte(`\x`)
+var (
+	xx    = []byte(`\x`)
+	start = []byte(`[]byte("`)
+)
+
+const lowerhex = "0123456789abcdef"
 
 // Parse the files transforming them into a byte string and inserting the file
 // into a map of files
@@ -74,19 +79,14 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 			return fmt.Errorf("File [%s] doesn't exist", customFile)
 		}
 
-		customFile = utils.FixPath(customFile)
-		walkErr := filepath.Walk(customFile, func(fpath string, info os.FileInfo, err error) error {
+		cb := func(fpath string, d *godirwalk.Dirent) error {
 			if config.Updater.Empty && !config.Updater.IsUpdating {
 				log.Println("empty mode")
 				return nil
 			}
 
-			if err != nil {
-				return err
-			}
-
 			// only files will be processed
-			if info.IsDir() {
+			if d != nil && d.IsDir() {
 				return nil
 			}
 
@@ -122,15 +122,14 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				}
 			}
 
-			// FIXME
-			// prevent including itself (destination file or dir)
+			info, err := os.Stat(fpath)
+			if err != nil {
+				return err
+			}
+
 			if info.Name() == config.Output {
 				return nil
 			}
-			/*if info.Name() == cfg.Output { ||
-			  info.Name() == path.Base(path.Dir(jsonFile)) {
-			  return nil
-			}*/
 
 			// get file's content
 			content, err := ioutil.ReadFile(fpath)
@@ -156,14 +155,6 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				}
 			}
 
-			var (
-				buf bytes.Buffer
-				f   = file.NewFile()
-			)
-
-			// it's way faster to use a buffer as string than use string
-			buf.WriteString(`[]byte("`)
-
 			// compress the content
 			if config.Compression.Options != nil {
 				content, err = config.Compression.Compress(content)
@@ -172,19 +163,18 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 				}
 			}
 
-			// it's way faster to loop and slice a string than a byte array
-			h := hex.EncodeToString(content)
-
-			// loop through hex string, at each 2 chars
-			// it's added into a byte array -> []byte("\x09\x11...")
-			for i := 0; i < len(h); i += 2 {
-				buf.Write(xx)
-				buf.WriteString(h[i : i+2])
+			dst := make([]byte, len(content)*4)
+			for i := 0; i < len(content); i++ {
+				dst[i*4] = byte('\\')
+				dst[i*4+1] = byte('x')
+				dst[i*4+2] = hextable[content[i]>>4]
+				dst[i*4+3] = hextable[content[i]&0x0f]
 			}
 
+			f := file.NewFile()
 			f.OriginalPath = originalPath
 			f.ReplacedText = replaced
-			f.Data = buf.String() + `")`
+			f.Data = `[]byte("` + string(dst) + `")`
 			f.Name = info.Name()
 			f.Path = fixedPath
 			f.Tags = c.Tags
@@ -202,10 +192,35 @@ func (c *Custom) Parse(files *map[string]*file.File, dirs **dir.Dir, config *Sha
 			// insert file into file list
 			to[fixedPath] = f
 			return nil
-		})
+		}
 
-		if walkErr != nil {
-			return walkErr
+		customFile = utils.FixPath(customFile)
+
+		// unlike filepath.walk, godirwalk will only walk dirs
+		f, err := os.Open(customFile)
+		if err != nil {
+			return err
+		}
+
+		defer f.Close()
+
+		fs, err := f.Stat()
+		if err != nil {
+			return err
+		}
+
+		if fs.IsDir() {
+			if err := godirwalk.Walk(customFile, &godirwalk.Options{
+				Unsorted: true,
+				Callback: cb,
+			}); err != nil {
+				return err
+			}
+
+		} else {
+			if err := cb(customFile, nil); err != nil {
+				return err
+			}
 		}
 	}
 
