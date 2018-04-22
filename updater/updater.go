@@ -314,7 +314,7 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 			log.Fatal(body.String())
 		}
 
-		bar.Complete()
+		bar.Completed()
 		done <- true
 	}
 }
