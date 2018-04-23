@@ -18,7 +18,7 @@ import (
 {{end}}
 
   "golang.org/x/net/webdav"
-  "golang.org/x/net/context"
+  "context"
 
 {{if .Updater.Enabled}}
   "crypto/sha256"
