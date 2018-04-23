@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/net/context"
+	"context"
 	"golang.org/x/net/webdav"
 
 	"crypto/sha256"
