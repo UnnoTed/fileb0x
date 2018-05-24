@@ -349,18 +349,23 @@ func getModification(path string, start []byte, end []byte) (string, error) {
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		if bytes.HasPrefix(scanner.Bytes(), start) && bytes.HasSuffix(scanner.Bytes(), end) {
-			break
+	reader := bufio.NewReader(file)
+	var data []byte
+	for {
+		line, _, err := reader.ReadLine()
+		if err != nil {
+			return "", err
 		}
+
+		if !bytes.HasPrefix(line, start) || !bytes.HasSuffix(line, end) {
+			continue
+		}
+
+		data = line
+		break
 	}
 
-	if err := scanner.Err(); err != nil {
-		return "", err
-	}
-
-	hash := bytes.TrimPrefix(scanner.Bytes(), start)
+	hash := bytes.TrimPrefix(data, start)
 	hash = bytes.TrimSuffix(hash, end)
 
 	return string(hash), nil
