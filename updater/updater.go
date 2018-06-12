@@ -250,11 +250,11 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 		nameText := fmt.Sprintf("%s | ", f.Path)
 		bar := p.AddBar(fr.Size(),
 			mpb.PrependDecorators(
-				decor.StaticName(jobText, 0, 0),
-				decor.StaticName(nameText, 0, decor.DSyncSpace),
-				decor.CountersKibiByte("%6.1f / %6.1f", 18, decor.DSyncSpace),
+				decor.StaticName(jobText, decor.WC{W: 0, C: 0}),
+				decor.StaticName(nameText, decor.WCSyncSpace),
+				decor.CountersKibiByte("%6.1f / %6.1f", decor.WC{W: 18, C: decor.DSyncSpace}),
 			),
-			mpb.AppendDecorators(decor.ETA(5, decor.DwidthSync)),
+			mpb.AppendDecorators(decor.ETA(decor.ET_STYLE_GO, 0, nil, decor.WC{W: 5, C: decor.DSyncWidth})),
 		)
 
 		p.UpdateBarPriority(bar, job.current)
