@@ -9,6 +9,7 @@ package {{.Pkg}}
 import (
   "bytes"
   {{if not .Spread}}{{if and $Compression.Compress (not .Debug)}}{{if not $Compression.Keep}}"compress/gzip"{{end}}{{end}}{{end}}
+  "context"
   "io"
   "net/http"
   "os"
@@ -18,7 +19,6 @@ import (
 {{end}}
 
   "golang.org/x/net/webdav"
-  "context"
 
 {{if .Updater.Enabled}}
   "crypto/sha256"
@@ -60,18 +60,15 @@ var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 {{end}}
 
 func init() {
-  if {{exported "CTX"}}.Err() != nil {
-		panic({{exported "CTX"}}.Err())
+  err := {{exported "CTX"}}.Err()
+  if err != nil {
+		panic(err)
 	}
 
 {{ $length := len .DirList }}
 {{ $fLength := len .Files }}
 {{ $noDirsButFiles := (and (not .Spread) (eq $length 0) (gt $fLength 0)) }}
 {{if not .Debug}}
-{{if and (not .Updater.Empty) (or (gt $length 0) $noDirsButFiles )}}
-  var err error
-{{end}}
-
 {{range $index, $dir := .DirList}}
   {{if and (ne $dir "./") (ne $dir "/") (ne $dir ".") (ne $dir "")}}
   err = {{exported "FS"}}.Mkdir({{exported "CTX"}}, "{{$dir}}", 0777)

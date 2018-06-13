@@ -10,6 +10,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"strings"
 
 	"encoding/hex"
@@ -17,11 +18,8 @@ import (
 	"encoding/json"
 
 	"github.com/UnnoTed/fileb0x/file"
-	"github.com/vbauerster/mpb"
-	"github.com/vbauerster/mpb/decor"
+	"github.com/airking05/termui"
 )
-
-var p *mpb.Progress
 
 // Auth holds authentication for the http basic auth
 type Auth struct {
@@ -37,10 +35,25 @@ type ResponseInit struct {
 	Hashes  map[string]string
 }
 
+// ProgressReader implements a io.Reader with a Read
+// function that lets a callback report how much
+// of the file was read
+type ProgressReader struct {
+	io.Reader
+	Reporter func(r int64)
+}
+
+func (pr *ProgressReader) Read(p []byte) (n int, err error) {
+	n, err = pr.Reader.Read(p)
+	pr.Reporter(int64(n))
+	return
+}
+
 // Updater sends files that should be update to the b0x server
 type Updater struct {
 	Server string
 	Auth   Auth
+	ui     []termui.Bufferer
 
 	RemoteHashes map[string]string
 	LocalHashes  map[string]string
@@ -146,7 +159,7 @@ func (up *Updater) EqualHashes(files map[string]*file.File) bool {
 		if len(f.Bytes) == 0 && !f.ReplacedText {
 			data, err := ioutil.ReadFile(f.OriginalPath)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 
 			f.Bytes = data
@@ -170,7 +183,7 @@ func (up *Updater) EqualHashes(files map[string]*file.File) bool {
 
 		sha := sha256.New()
 		if _, err := sha.Write(f.Bytes); err != nil {
-			log.Fatal(err)
+			panic(err)
 			return false
 		}
 
@@ -207,9 +220,22 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 		return nil
 	}
 
-	// progressbar pool
-	p = mpb.New(mpb.WithWidth(100))
+	// everything's height
+	height := 3
+	err = termui.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer termui.Close()
 
+	// info text
+	p := termui.NewPar("PRESS ANY KEY TO QUIT")
+	p.Height = height
+	p.Width = 50
+	p.TextFgColor = termui.ColorWhite
+	up.ui = append(up.ui, p)
+
+	doneTotal := 0
 	total := len(up.ToUpdate)
 	jobs := make(chan *job, total)
 	done := make(chan bool, total)
@@ -218,8 +244,38 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 		up.Workers = 1
 	}
 
+	// just so it can listen to events
+	go func() {
+		termui.Loop()
+	}()
+
+	// cancel with any key
+	termui.Handle("/sys/kbd", func(termui.Event) {
+		termui.StopLoop()
+		os.Exit(1)
+	})
+
+	// stops rendering when total is reached
+	go func(upp *Updater, d *int) {
+		for {
+			if *d >= total {
+				break
+			}
+
+			termui.Render(upp.ui...)
+		}
+	}(up, &doneTotal)
+
 	for i := 0; i < up.Workers; i++ {
-		go up.worker(jobs, done)
+		// creates a progress bar
+		g := termui.NewGauge()
+		g.Width = termui.TermWidth()
+		g.Height = height
+		g.BarColor = termui.ColorBlue
+		g.Y = len(up.ui) * height
+		up.ui = append(up.ui, g)
+
+		go up.worker(jobs, done, g)
 	}
 
 	for i, name := range up.ToUpdate {
@@ -233,61 +289,52 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 
 	for i := 0; i < total; i++ {
 		<-done
+		doneTotal++
 	}
 
-	p.Wait()
 	return nil
 }
 
-func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
+func (up *Updater) worker(jobs <-chan *job, done chan<- bool, g *termui.Gauge) {
 	for job := range jobs {
 		f := job.files
-		// log.Println("RUNNING JOB", fmt.Sprintf("%d/%d %s", job.current, job.total, f.Path))
-
 		fr := bytes.NewReader(f.Bytes)
+		g.BorderLabel = fmt.Sprintf("%d/%d %s", job.current, job.total, f.Path)
 
-		jobText := fmt.Sprintf("%d/%d | ", job.current, job.total)
-		nameText := fmt.Sprintf("%s | ", f.Path)
-		bar := p.AddBar(fr.Size(),
-			mpb.PrependDecorators(
-				decor.StaticName(jobText, decor.WC{W: 0, C: 0}),
-				decor.StaticName(nameText, decor.WCSyncSpace),
-				decor.CountersKibiByte("%6.1f / %6.1f", decor.WC{W: 18, C: decor.DSyncSpace}),
-			),
-			mpb.AppendDecorators(decor.ETA(decor.ET_STYLE_GO, 0, nil, decor.WC{W: 5, C: decor.DSyncWidth})),
-		)
-
-		p.UpdateBarPriority(bar, job.current)
+		// updates progress bar's percentage
+		var total int64
+		pr := &ProgressReader{fr, func(r int64) {
+			total += r
+			g.Percent = int(float64(total) / float64(fr.Size()) * 100)
+		}}
 
 		r, w := io.Pipe()
 		writer := multipart.NewWriter(w)
 
 		// copy the file into the form
-		go func(fr io.Reader) {
+		go func(fr *ProgressReader) {
 			defer w.Close()
 			part, err := writer.CreateFormFile("file", f.Path)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 
-			pr := bar.ProxyReader(fr)
-
-			_, err = io.Copy(part, pr)
+			_, err = io.Copy(part, fr)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 
 			err = writer.Close()
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
-		}(fr)
+		}(pr)
 
 		// create a post request with basic auth
 		// and the file included in a form
 		req, err := http.NewRequest("POST", up.Server, r)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 
 		req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -297,24 +344,23 @@ func (up *Updater) worker(jobs <-chan *job, done chan<- bool) {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 
 		body := &bytes.Buffer{}
 		_, err = body.ReadFrom(resp.Body)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 
 		if err := resp.Body.Close(); err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 
 		if body.String() != "ok" {
-			log.Fatal(body.String())
+			panic(body.String())
 		}
 
-		bar.Completed()
 		done <- true
 	}
 }
