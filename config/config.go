@@ -10,7 +10,9 @@ import (
 
 // Config holds the json/yaml/toml data
 type Config struct {
-	Dest        string
+	Dest     string
+	NoPrefix bool
+
 	Pkg         string
 	Fmt         bool // gofmt
 	Compression *compression.Options
@@ -52,7 +54,7 @@ func (cfg *Config) Defaults() error {
 
 	// inserts an A before the output file's name so it can
 	// run init() before b0xfile's
-	if !strings.HasPrefix(cfg.Output, "a") {
+	if !cfg.NoPrefix && !strings.HasPrefix(cfg.Output, "a") {
 		cfg.Output = "a" + cfg.Output
 	}
 

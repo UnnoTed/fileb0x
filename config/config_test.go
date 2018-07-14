@@ -13,12 +13,14 @@ func TestConfigDefaults(t *testing.T) {
 		{Dest: "", Pkg: "", Output: ""},
 		{Dest: "hello", Pkg: "static", Output: "ssets"},
 		{Dest: "hello", Pkg: "static", Output: "amissingEnd"},
+		{Dest: "hello", Pkg: "static", Output: "compiled", NoPrefix: true},
 	}
 
 	expecTedList := []*Config{
 		{Dest: "/", Pkg: "main", Output: "ab0x.go"},
 		{Dest: "hello/", Pkg: "static", Output: "assets.go"},
 		{Dest: "hello/", Pkg: "static", Output: "amissingEnd.go"},
+		{Dest: "hello/", Pkg: "static", Output: "compiled.go", NoPrefix: true},
 	}
 
 	for i, cfg := range cfgList {
