@@ -367,7 +367,7 @@ custom:
     # it will only work if spread mode is enabled
     tags: "windows"
 
-	# type: array of strings
+  # type: array of strings
   - files: 
     - "ufo.dmg"
 
