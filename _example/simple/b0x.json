@@ -90,7 +90,7 @@
   // [noprefix] disables adding "a" prefix to output
   // type: bool
   // default: false
-  "noprefix": false
+  "noprefix": false,
 
   // [unexporTed] builds non-exporTed functions, variables and types...
   // type: bool
