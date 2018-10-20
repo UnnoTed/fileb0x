@@ -50,7 +50,10 @@ var (
 )
 
 // HTTPFS implements http.FileSystem
-type {{exported "HTTPFS"}} struct {}
+type {{exported "HTTPFS"}} struct {
+	// Prefix allows to limit the path of all requests. F.e. a prefix "css" would allow only calls to /css/*
+	Prefix string
+}
 
 {{if (and (not .Spread) (not .Debug))}}
 {{range .Files}}
@@ -154,6 +157,8 @@ var remap = map[string]map[string]string{
 
 // Open a file
 func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
+  path = hfs.Prefix + path
+
 {{if .Debug}}
   path = strings.TrimPrefix(path, "/")
 
@@ -163,8 +168,8 @@ func (hfs *{{exported "HTTPFS"}}) Open(path string) (http.File, error) {
       break
     }
   }
-{{end}}
 
+{{end}}
   f, err := {{if .Debug}}os{{else}}{{exported "FS"}}{{end}}.OpenFile({{if not .Debug}}{{exported "CTX"}}, {{end}}path, os.O_RDONLY, 0644)
   if err != nil {
     return nil, err
