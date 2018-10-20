@@ -1,11 +1,13 @@
-//go:generate fileb0x b0x.yaml
+//go:generate go run github.com/UnnoTed/fileb0x b0x.yaml
 package main
 
 import (
 	"log"
 	"net/http"
 
-	"github.com/UnnoTed/fileb0x/_example/simple/static"
+	// "example.com/foo/simple" represents your package (as per go.mod)
+	// package static is created by `go generate` according to b0x.yaml (as per the comment above)
+	"example.com/foo/simple/static"
 )
 
 func main() {
