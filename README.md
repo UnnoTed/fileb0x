@@ -80,6 +80,27 @@ MIT
 
 ### Get Started
 
+###### TL;DR QuickStart&trade;
+
+Here's the get-you-going in 30 seconds or less:
+
+```bash
+git clone https://github.com/UnnoTed/fileb0x.git
+cd fileb0x
+cd _example/simple
+go generate
+go build
+./simple
+```
+
+* `mod.go` defines the package as `example.com/foo/simple`
+* `b0x.yaml` defines the sub-package `static` from the folder `public`
+* `main.go` includes the comment `//go:generate go run github.com/UnnoTed/fileb0x b0x.yaml`
+* `main.go` also includes the import `example.com/foo/simple/static`
+* `go generate` locally installs `fileb0x` which generates `./static` according to `bax.yaml`
+* `go build` creates the binary `simple` from `package main` in the current folder
+* `./simple` runs the self-contained standalone webserver with built-in files from `public`
+
 <details> 
 
 <summary>How to use it?</summary>
