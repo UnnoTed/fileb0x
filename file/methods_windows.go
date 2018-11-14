@@ -11,7 +11,7 @@ func (f *File) GetRemap() string {
 		return ""
 	}
 
-	return `"` + strings.Replace(f.OriginalPath, `\`, `\\`, -1) + `": {
+	return `"` + strings.Replace(f.Path, `\`, `\\`, -1) + `": {
 		"prefix": "` + f.Prefix + `",
 		"base": "` + f.Base + `",
 	},`
