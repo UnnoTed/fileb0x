@@ -20,7 +20,7 @@ import (
 // {{exportedTitle "File"}}{{buildSafeVarName .Path}} is "{{.Path}}"
 var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 
-func init() {
+func {{ .Init}}() {
   {{if .Compression.Compress}}
   {{if not .Compression.Keep}}
   rb := bytes.NewReader({{exportedTitle "File"}}{{buildSafeVarName .Path}})

@@ -145,6 +145,7 @@ func main() {
 			Debug            bool
 			Updater          updater.Config
 			ModificationHash string
+			Init             string
 		}{
 			ConfigFile:       filepath.Base(cfgPath),
 			Now:              time.Now().String(),
@@ -158,6 +159,7 @@ func main() {
 			Debug:            cfg.Debug,
 			Updater:          cfg.Updater,
 			ModificationHash: modHash,
+			Init:             cfg.Init,
 		}
 
 		tmpl, err := t.Exec()

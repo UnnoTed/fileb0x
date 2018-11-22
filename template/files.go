@@ -31,7 +31,7 @@ import (
 {{end}}
 )
 
-var ( 
+var (
   // CTX is a context for webdav vfs
   {{exported "CTX"}} = context.Background()
 
@@ -62,7 +62,7 @@ var {{exportedTitle "File"}}{{buildSafeVarName .Path}} = {{.Data}}
 {{end}}
 {{end}}
 
-func init() {
+func {{ .Init}}() {
   err := {{exported "CTX"}}.Err()
   if err != nil {
 		panic(err)
@@ -232,7 +232,7 @@ func {{exportedTitle "WalkDirs"}}(name string, includeDirsInList bool, files ...
 	if err != nil {
     return nil, err
   }
-  
+
   err = f.Close()
   if err != nil {
 		return nil, err
@@ -278,7 +278,7 @@ type {{exportedTitle "Server"}} struct {
   Files []string
 }
 
-// Init sets the routes and basic http auth 
+// Init sets the routes and basic http auth
 // before starting the http server
 func (s *{{exportedTitle "Server"}}) Init() {
   s.Auth = {{exportedTitle "Auth"}}{
@@ -301,7 +301,7 @@ func (s *{{exportedTitle "Server"}}) Init() {
 // Get gives a list of file names and hashes
 func (s *{{exportedTitle "Server"}}) Get(c echo.Context) error {
   log.Println("[fileb0x.Server]: Hashing server files...")
-  
+
   // file:hash
   hashes := map[string]string{}
 
@@ -335,7 +335,7 @@ func (s *{{exportedTitle "Server"}}) Get(c echo.Context) error {
   })
 }
 
-// Post is used to upload a file and replace 
+// Post is used to upload a file and replace
 // it in the virtual memory file system
 func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
   file, err := c.FormFile("file")
@@ -358,7 +358,7 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
     log.Println("[fileb0x.Server]: Creating dir tree", newDir)
     list := strings.Split(newDir, "/")
     var tree string
-    
+
     for _, dir := range list {
       if dir == "" || dir == "." || dir == "/" || dir == "./" {
         continue
@@ -392,7 +392,7 @@ func (s *{{exportedTitle "Server"}}) Post(c echo.Context) error {
   return c.String(http.StatusOK, "ok")
 }
 
-// BasicAuth is a middleware to check if 
+// BasicAuth is a middleware to check if
 // the username and password are valid
 // echo's middleware isn't used because of golint issues
 func (s *{{exportedTitle "Server"}}) BasicAuth() echo.MiddlewareFunc {
