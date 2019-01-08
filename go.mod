@@ -6,7 +6,7 @@ require (
 	github.com/bmatcuk/doublestar v1.1.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/karrick/godirwalk v1.7.4
+	github.com/karrick/godirwalk v1.7.8
 	github.com/labstack/echo v3.2.1+incompatible
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/maruel/panicparse v1.1.1 // indirect
