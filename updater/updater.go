@@ -18,7 +18,8 @@ import (
 	"encoding/json"
 
 	"github.com/UnnoTed/fileb0x/file"
-	"github.com/airking05/termui"
+	termui "github.com/gizak/termui/v3"
+	"github.com/gizak/termui/v3/widgets"
 )
 
 // Auth holds authentication for the http basic auth
@@ -53,7 +54,7 @@ func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 type Updater struct {
 	Server string
 	Auth   Auth
-	ui     []termui.Bufferer
+	ui     []termui.Drawable
 
 	RemoteHashes map[string]string
 	LocalHashes  map[string]string
@@ -229,10 +230,11 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 	defer termui.Close()
 
 	// info text
-	p := termui.NewPar("PRESS ANY KEY TO QUIT")
-	p.Height = height
-	p.Width = 50
-	p.TextFgColor = termui.ColorWhite
+	p := widgets.NewParagraph()
+	p.Text = "fileb0x updater - PRESS q TO QUIT"
+	p.TitleStyle.Fg = termui.ColorWhite
+	termWidth, _ := termui.TerminalDimensions()
+	p.SetRect(0, 0, termWidth, height)
 	up.ui = append(up.ui, p)
 
 	doneTotal := 0
@@ -244,16 +246,18 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 		up.Workers = 1
 	}
 
-	// just so it can listen to events
+	// listen to events
 	go func() {
-		termui.Loop()
+		uiEvents := termui.PollEvents()
+		for {
+			e := <-uiEvents
+			switch e.ID {
+			case "q", "<C-c>":
+				termui.Close()
+				os.Exit(1)
+			}
+		}
 	}()
-
-	// cancel with any key
-	termui.Handle("/sys/kbd", func(termui.Event) {
-		termui.StopLoop()
-		os.Exit(1)
-	})
 
 	// stops rendering when total is reached
 	go func(upp *Updater, d *int) {
@@ -268,11 +272,10 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 
 	for i := 0; i < up.Workers; i++ {
 		// creates a progress bar
-		g := termui.NewGauge()
-		g.Width = termui.TermWidth()
-		g.Height = height
+		g := widgets.NewGauge()
+		top := height + (height * i)
+		g.SetRect(0, top, termWidth, top+height)
 		g.BarColor = termui.ColorBlue
-		g.Y = len(up.ui) * height
 		up.ui = append(up.ui, g)
 
 		go up.worker(jobs, done, g)
@@ -295,11 +298,11 @@ func (up *Updater) UpdateFiles(files map[string]*file.File) error {
 	return nil
 }
 
-func (up *Updater) worker(jobs <-chan *job, done chan<- bool, g *termui.Gauge) {
+func (up *Updater) worker(jobs <-chan *job, done chan<- bool, g *widgets.Gauge) {
 	for job := range jobs {
 		f := job.files
 		fr := bytes.NewReader(f.Bytes)
-		g.BorderLabel = fmt.Sprintf("%d/%d %s", job.current, job.total, f.Path)
+		g.Title = fmt.Sprintf("%d/%d %s", job.current, job.total, f.Path)
 
 		// updates progress bar's percentage
 		var total int64
