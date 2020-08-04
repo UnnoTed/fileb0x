@@ -6,7 +6,7 @@ github.com/airking05/termui v2.2.0+incompatible h1:S3j2WJzr70u8KjUktaQ0Cmja+R0ed
 github.com/airking05/termui v2.2.0+incompatible/go.mod h1:B/M5sgOwSZlvGm3TsR98s1BSzlSH4wPQzUUNwZG+uUM=
 github.com/bmatcuk/doublestar v1.1.1 h1:YroD6BJCZBYx06yYFEWvUuKVWQn3vLLQAVmDmvTSaiQ=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=
-github.com/karrick/godirwalk v1.7.3 h1:UP4CfXf1LfNwXrX6vqWf1DOhuiFRn2hXsqtRAQlQOUQ=
+github.com/karrick/godirwalk v1.7.3 h1:e5iv87oxunQtG7S9MB10jrINLmF7HecFSjiTYKO7P2c=
 github.com/karrick/godirwalk v1.7.3/go.mod h1:2c9FRhkDxdIbgkOnCEvnSWs71Bhugbl46shStcFDJ34=
 github.com/labstack/echo v3.2.1+incompatible h1:J2M7YArHx4gi8p/3fDw8tX19SXhBCoRpviyAZSN3I88=
 github.com/labstack/echo v3.2.1+incompatible/go.mod h1:0INS7j/VjnFxD4E2wkz67b8cVwCLbBmJyDaka6Cmk1s=
