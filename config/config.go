@@ -28,6 +28,8 @@ type Config struct {
 	Debug      bool
 	Updater    updater.Config
 	Lcf        bool
+
+	Init string
 }
 
 // Defaults set the default value for some variables
@@ -69,6 +71,10 @@ func (cfg *Config) Defaults() error {
 			Method:   "DefaultCompression",
 			Keep:     false,
 		}
+	}
+
+	if cfg.Init == "" {
+		cfg.Init = "init"
 	}
 
 	return nil
