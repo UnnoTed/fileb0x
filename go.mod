@@ -20,7 +20,7 @@ require (
 	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b // indirect
 	golang.org/x/net v0.0.0-20180921000356-2f5d2388922f
 	golang.org/x/sys v0.0.0-20181019160139-8e24a49d80f8 // indirect
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.2.8
 )
 
 go 1.13
